@@ -1,0 +1,29 @@
+{
+  "name": "acnox/stringray",
+  "description": "Extended string helpers",
+  "keywords": [
+    "extended",
+    "helpers",
+    "string",
+    "extra",
+    "handling",
+    "useful"
+  ],
+  "homepage": "https://github.com/acnox/stringray",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Maadhih Hussain",
+      "email": "maadhihhussain@gmail.com"
+    }
+  ],
+  "require": {
+    "php" : ">=5.6.0"
+  },
+  "autoload": {
+    "files": ["src/helpers.php"],
+    "psr-4": {
+      "Acnox\\StringRay\\": "src"
+    }
+  }
+}

@@ -5,7 +5,8 @@ namespace Acnox\StringRay;
 use ArrayAccess;
 use ArrayIterator;
 use IteratorAggregate;
-use Stringy\StaticStringy as Stringy;
+use Stringy\Stringy;
+use Stringy\StaticStringy;
 
 /**
  *
@@ -45,9 +46,11 @@ class String implements ArrayAccess, IteratorAggregate
     public function __call($method, $args)
     {
         array_unshift($args, $this->string);
-        return $this->returnNew(
-            forward_static_call_array([Stringy::class, $method], $args)
-        );
+        $result = forward_static_call_array([StaticStringy::class, $method], $args);
+
+        if ($result instanceof Stringy) return $this->returnNew($result);
+
+        return $result;
     }
 
     public function __toString()
@@ -62,15 +65,13 @@ class String implements ArrayAccess, IteratorAggregate
 
     /**
      * Returns a new ArrayIterator, thus implementing the IteratorAggregate
-     * interface. The ArrayIterator's constructor is passed an array of chars
-     * in the multibyte string. This enables the use of foreach with instances
-     * of Stringy\Stringy.
+     * interface.
      *
      * @return \ArrayIterator An iterator for the characters in the string
      */
     public function getIterator()
     {
-        return new ArrayIterator(Stringy::chars($this->string));
+        return new ArrayIterator(StaticStringy::chars($this->string));
     }
 
     /**
@@ -211,7 +212,7 @@ class String implements ArrayAccess, IteratorAggregate
     public function till($string)
     {
         $index = strpos($this->string, $string);
-        return $this->returnNew(Stringy::substr($this->string, 0, $index));
+        return $this->returnNew(StaticStringy::substr($this->string, 0, $index));
     }
 
 }

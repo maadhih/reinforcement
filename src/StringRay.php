@@ -3,13 +3,15 @@
 namespace Acnox\StringRay;
 
 use ArrayAccess;
+use ArrayIterator;
+use IteratorAggregate;
 use Stringy\StaticStringy as Stringy;
 
 /**
  *
  */
 
-class String implements ArrayAccess
+class String implements ArrayAccess, IteratorAggregate
 {
     /**
      * @var string
@@ -56,6 +58,19 @@ class String implements ArrayAccess
     public function deselect()
     {
         return new static($this->original);
+    }
+
+    /**
+     * Returns a new ArrayIterator, thus implementing the IteratorAggregate
+     * interface. The ArrayIterator's constructor is passed an array of chars
+     * in the multibyte string. This enables the use of foreach with instances
+     * of Stringy\Stringy.
+     *
+     * @return \ArrayIterator An iterator for the characters in the string
+     */
+    public function getIterator()
+    {
+        return new ArrayIterator(Stringy::chars($this->string));
     }
 
     /**

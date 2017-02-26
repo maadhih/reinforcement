@@ -32,13 +32,11 @@ class String implements ArrayAccess
      * @param string $original  
      * @param array $selection 
      */
-    public function __construct($string = '', $original = null, $selection = null)
+    public function __construct($string = '', $original = null, array $selection = [])
     {
         $this->string   = (string) $string;
-        $this->original = (isset($original) ? $original : $this->string);
-        if (!empty($selection)) {
-            $this->selection = $selection;
-        }
+        $this->original = $original;
+        $this->selection = $selection;
 
     }
 
@@ -128,8 +126,8 @@ class String implements ArrayAccess
 
             $this->string = substr_replace($this->original, $this->string,
                 $this->selection[0], $this->selection[1]);
-            $this->original  = $this->string;
-            $this->selection = null;
+            $this->original  = null;
+            $this->selection = [];
         }
         // $this->string = "sdjsdj";
         return $this;
@@ -159,14 +157,18 @@ class String implements ArrayAccess
             }
         }
 
+        $this->original = $this->string;
         $this->string = (string) $this->__call($method, $callbackArgs);
+
         switch ($method) {
             case 'at':
                 $this->selection = [$callbackArgs[0], 1];
                 break;
+
             case 'substr':
                 $this->selection = $callbackArgs;
                 break;
+
             case 'between':
                 $needle = $callbackArgs[0] . $this->string . $callbackArgs[1];
                 $start  = strpos($this->original, $needle) + strlen($callbackArgs[0]);
@@ -174,6 +176,7 @@ class String implements ArrayAccess
 
                 $this->selection = [$start, $length];
                 break;
+
             case 'at':
                 $this->selection = [$callbackArgs, 1];
                 break;

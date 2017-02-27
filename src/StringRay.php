@@ -2,17 +2,19 @@
 
 namespace Acnox\StringRay;
 
+use Countable;
 use ArrayAccess;
 use ArrayIterator;
 use IteratorAggregate;
 use Stringy\Stringy;
 use Stringy\StaticStringy;
+use BadMethodCallException;
 
 /**
  *
  */
 
-class String implements ArrayAccess, IteratorAggregate
+class String implements ArrayAccess, Countable, IteratorAggregate
 {
     /**
      * @var string
@@ -45,17 +47,38 @@ class String implements ArrayAccess, IteratorAggregate
 
     public function __call($method, $args)
     {
-        array_unshift($args, $this->string);
-        $result = forward_static_call_array([StaticStringy::class, $method], $args);
+        $stringy = $this->stringy();
+        if (method_exists($stringy, $method)){
+            array_unshift($args, $this->string);
+            $result = call_user_func_array([$stringy, $method], $args);
 
-        if ($result instanceof Stringy) return $this->returnNew($result);
+            if ($result instanceof Stringy) return $this->returnNew($result);
 
-        return $result;
+            return $result;
+        }
+
+        throw new BadMethodCallException("Method '". $method . "' does not exist");
+        
     }
 
     public function __toString()
     {
         return (string) $this->string;
+    }
+
+    /**
+     * Returns the length of the string.
+     *
+     * @return int Number of characters in the string
+     */
+    public function count()
+    {
+        return $this->stringy()->length();
+    }
+
+    public function stringy()
+    {
+        return new Stringy($this->string);
     }
 
     public function deselect()
@@ -64,14 +87,13 @@ class String implements ArrayAccess, IteratorAggregate
     }
 
     /**
-     * Returns a new ArrayIterator, thus implementing the IteratorAggregate
-     * interface.
+     * Returns a new ArrayIterator.
      *
-     * @return \ArrayIterator An iterator for the characters in the string
+     * @return \ArrayIterator
      */
     public function getIterator()
     {
-        return new ArrayIterator(StaticStringy::chars($this->string));
+        return new ArrayIterator($this->stringy()->chars());
     }
 
     /**
@@ -212,7 +234,7 @@ class String implements ArrayAccess, IteratorAggregate
     public function till($string)
     {
         $index = strpos($this->string, $string);
-        return $this->returnNew(StaticStringy::substr($this->string, 0, $index));
+        return $this->returnNew($this->stringy()->substr(0, $index));
     }
 
 }

@@ -5,9 +5,8 @@ namespace Acnox\StringRay;
 use Countable;
 use ArrayAccess;
 use ArrayIterator;
-use IteratorAggregate;
 use Stringy\Stringy;
-use Stringy\StaticStringy;
+use IteratorAggregate;
 use BadMethodCallException;
 
 /**
@@ -231,9 +230,11 @@ class String implements ArrayAccess, Countable, IteratorAggregate
         echo "test";
     }
 
-    public function till($string)
+    public function till($string, $offset = 0)
     {
-        $index = strpos($this->string, $string);
+        $index = \mb_strpos($this->string, $string, $offset);
+        if ($index === false) $this->returnNew('');
+        
         return $this->returnNew($this->stringy()->substr(0, $index));
     }
 

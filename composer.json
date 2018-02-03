@@ -1,15 +1,12 @@
 {
-  "name": "acnox/stringray",
-  "description": "Extended string helpers",
+  "name": "Reinforcement",
+  "description": "Extended laravel support for APIs",
   "keywords": [
     "extended",
-    "helpers",
-    "string",
-    "extra",
-    "handling",
-    "useful"
+    "API",
+    "laravel"
   ],
-  "homepage": "https://github.com/acnox/stringray",
+  "homepage": "https://gitlab.com/Acnox/Reinforcement",
   "license": "MIT",
   "authors": [
     {
@@ -19,12 +16,14 @@
   ],
   "require": {
     "php" : ">=5.6.0",
-    "danielstjules/stringy": "~2.3"
+    "illuminate/validation": "5.*",
+    "illuminate/support": "5.*",
+    "illuminate/container": "5.*",
+    "illuminate/config": "5.*"
   },
   "autoload": {
-    "files": ["src/helpers.php"],
     "psr-4": {
-      "Acnox\\StringRay\\": "src"
+      "Reinforcement\\": "src"
     }
   }
 }

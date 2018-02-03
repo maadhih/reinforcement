@@ -1,7 +1,6 @@
 {
   "name": "acnox/reinforcement",
   "description": "Extended laravel support for APIs",
-  "version": "1.0.0",
   "keywords": [
     "extended",
     "API",

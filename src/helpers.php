@@ -1,13 +1,6 @@
 <?php
 
-use Acnox\StringRay\String;
-
-/**
- * @param string $string
- *
- * @return \StringRay
- */
-function string($string = '')
+function test($string = 'test')
 {
-    return new String($string);
+    return $string;
 }

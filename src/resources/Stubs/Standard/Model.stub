@@ -1,0 +1,21 @@
+<?php
+
+namespace {{namespace}}\Models;
+
+use App\Models\Core;
+
+class {{resource}} extends Core
+{
+    protected $fillable = [
+        {{fillables}}
+    ];
+
+    public static function mappings()
+    {
+        return [
+            // Mappings Data here
+        ];
+    }
+
+    {{relations}}
+}

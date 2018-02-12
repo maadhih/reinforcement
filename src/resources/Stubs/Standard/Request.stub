@@ -1,0 +1,38 @@
+<?php
+
+namespace {{namespace}}Http\Requests;
+
+use App\Http\Requests\CoreRequest;
+use {{namespace}}Validators\{{resource}}Validator;
+
+class {{resource}}Request extends CoreRequest
+{
+
+    protected function includeParameters()
+    {
+        return [
+            {{relationsString}}
+        ];
+    }
+
+    protected function sortFieldParameters()
+    {
+        return [
+            {{fieldsString}}
+        ];
+    }
+
+    public function filteringParameters()
+    {
+        return [
+            'query',
+            {{fieldsString}}
+        ];
+    }
+
+    public function validator()
+    {
+        return {{resource}}Validator::class;
+    }
+
+}

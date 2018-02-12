@@ -1,0 +1,25 @@
+<?php
+
+namespace {{namespace}}Repositories;
+
+use {{namespace}}Models\{{resource}};
+use {{namespace}}Repositories\CoreRepository;
+
+class {{resource}}Repository extends CoreRepository
+{
+	public function __construct({{resource}} $model)
+    {
+        parent::__construct($model);
+    }
+
+    public static function getFiltering()
+    {
+        return [
+
+            'query' => [
+            	{{fieldsString}},
+            ],
+            {{fieldsMapped}}
+        ];
+    }
+}

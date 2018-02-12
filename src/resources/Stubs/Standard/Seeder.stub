@@ -1,0 +1,14 @@
+<?php
+
+use {{namespace}}\Models\{{resource}};
+
+class {{resourcePlural}}TableSeeder extends AbstractTableSeeder
+{
+    protected $className = {{resource}}::class;
+    protected $data = [
+            [
+	            "id" => 1,
+               {{attributes}}
+            ]
+        ];
+}

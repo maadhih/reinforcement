@@ -20,11 +20,23 @@
     "illuminate/validation": "5.*",
     "illuminate/support": "5.*",
     "illuminate/container": "5.*",
-    "illuminate/config": "5.*"
+    "illuminate/config": "5.*",
+    "illuminate/database": "5.*",
+    "illuminate/console": "5.*"
   },
   "autoload": {
     "psr-4": {
       "Reinforcement\\": "src"
+    }
+  },
+  "extra": {
+    "laravel": {
+        "providers": [
+            "Reinforcement\\ReinforcementServiceProvider"
+        ],
+        "aliases": {
+            "Schema": "Reinforcement\\Database\\Schema\\Facades\\Schema"
+        }
     }
   }
 }

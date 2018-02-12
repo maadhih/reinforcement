@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+
+class Create{{resourcePlural}}Table extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('{{resourcePluralLower}}', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('foreignName_id')->unsigned();
+            $table->string('field');
+            $table->timestamps();
+
+            $table->foreign('foreignName_id')->references('id')->on('foreignNames')->onUpdate('cascade')->onDelete('restrict');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('{{resourcePluralLower}}');
+    }
+}

@@ -1,42 +1,36 @@
 {
-  "name": "acnox/reinforcement",
-  "description": "Extended laravel support for APIs",
-  "keywords": [
-    "extended",
-    "API",
-    "laravel",
-    "support"
-  ],
-  "homepage": "https://gitlab.com/Acnox/Reinforcement",
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "Maadhih Hussain",
-      "email": "maadhihhussain@gmail.com"
-    }
-  ],
-  "require": {
-    "php" : ">=5.6.0",
-    "illuminate/validation": "5.*",
-    "illuminate/support": "5.*",
-    "illuminate/container": "5.*",
-    "illuminate/config": "5.*",
-    "illuminate/database": "5.*",
-    "illuminate/console": "5.*"
-  },
-  "autoload": {
-    "psr-4": {
-      "Reinforcement\\": "src"
-    }
-  },
-  "extra": {
-    "laravel": {
-        "providers": [
-            "Reinforcement\\ReinforcementServiceProvider"
+    "name": "acnox/reinforcement",
+    "description": "Extended laravel support for APIs",
+    "keywords": ["extended", "API", "laravel", "support"],
+    "homepage": "https://gitlab.com/Acnox/Reinforcement",
+    "license": "MIT",
+    "authors": [{
+        "name": "Maadhih Hussain",
+        "email": "maadhihhussain@gmail.com"
+    }],
+    "require": {
+        "php": ">=5.6.0",
+        "illuminate/validation": "5.*",
+        "illuminate/support": "5.*",
+        "illuminate/container": "5.*",
+        "illuminate/config": "5.*",
+        "illuminate/database": "5.*",
+        "illuminate/console": "5.*"
+    },
+    "autoload": {
+        "files": [
+            "src/helpers.php"
         ],
-        "aliases": {
-            "Schema": "Reinforcement\\Database\\Schema\\Facades\\Schema"
+        "psr-4": {
+            "Reinforcement\\": "src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": ["Reinforcement\\ReinforcementServiceProvider"],
+            "aliases": {
+                "Schema": "Reinforcement\\Database\\Schema\\Facades\\Schema"
+            }
         }
     }
-  }
 }

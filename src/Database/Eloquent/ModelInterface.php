@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Illuminate\Database\Eloquent;
+namespace Reinforcement\Database\Eloquent;
 
 interface ModelInterface {
 

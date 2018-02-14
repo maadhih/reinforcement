@@ -6,11 +6,13 @@ abstract class ResourceController extends BaseController
 {
 
 
-    public function __construct(Container $container, Repository $repository, JsonApiRequest $request)
-    {
-        parent::__construct($container, $repository, $request);
-    }
+    // public function __construct(Container $container, Repository $repository, JsonApiRequest $request)
+    // {
+    //     parent::__construct($container, $repository, $request);
+    // }
 
+    protected $repository;
+    protected $repositoryClass;
     /**
      * Display a listing of the resource.
      *
@@ -18,8 +20,7 @@ abstract class ResourceController extends BaseController
      */
     public function index()
     {
-        $parameters = $this->request->getParameters();
-        $paginator = $this->repository->getPaginatedCollection($parameters);
+        $paginator = $this->getRepository()->getPaginatedCollection($this->request->getFilteringParameters());
         return $this->paginatedResponse($paginator);
     }
 
@@ -42,9 +43,18 @@ abstract class ResourceController extends BaseController
      */
     public function show($id)
     {
-        $parameters = $this->request->getParameters();
-        $model = $this->repository->getItem($id, $parameters);
+        // $parameters = $this->request->getParameters();
+        $parameters = null;
+        $model = $this->getRepository()->getItem($id, $parameters);
+        return $model;
         return $this->modelResponse($model);
+    }
+
+    protected function getRepository()
+    {
+    	if (!empty($this->repository)) return $this->repository;
+
+    	return app()->make($this->repositoryClass);
     }
 
     /**

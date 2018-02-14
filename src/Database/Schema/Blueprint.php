@@ -3,6 +3,7 @@
 namespace Reinforcement\Database\Schema;
 
 use Illuminate\Database\Schema\Blueprint AS IlluminateBlueprint;
+use Illuminate\Support\Str;
 
 class Blueprint extends IlluminateBlueprint
 {
@@ -15,7 +16,7 @@ class Blueprint extends IlluminateBlueprint
      */
     public function foreign($columns, $name = null)
     {
-        $tableName = str_plural(rtrim($columns, '_id'));
+        $tableName = Str::plural(rtrim($columns, '_id'));
         return $this->indexCommand('foreign', $columns, $name)
                 ->references('id')
                 ->on($tableName)

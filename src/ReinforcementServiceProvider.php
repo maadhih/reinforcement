@@ -3,6 +3,8 @@
 namespace Reinforcement;
 
 use Illuminate\Support\ServiceProvider;
+use Reinforcement\Http\Request;
+use Illuminate\Http\Request as IlluminateRequest;
 
 /**
  *
@@ -40,6 +42,7 @@ class ReinforcementServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->configureRequests();
     }
 
     /**
@@ -50,5 +53,28 @@ class ReinforcementServiceProvider extends ServiceProvider
     public function register()
     {
         $this->commands($this->commands);
+    }
+
+    protected function configureRequests()
+    {
+        $this->app->resolving(Request::class, function ($request, $app)
+        {
+            // do not replace with $this->getRequest()
+            // in tests when more than 1 request it will be executed more than once.
+            // if replaced tests will fail
+            $currentRequest = $app->make(IlluminateRequest::class);
+            // $files          = $currentRequest->files->all();
+            // $files          = is_array($files) === true ? array_filter($files) : $files;
+
+            $request->initializeFromRequest($currentRequest);
+            $this->app->instance(Request::class, $request);
+
+            // $request->setUserResolver($currentRequest->getUserResolver());
+            // $request->setRouteResolver($currentRequest->getRouteResolver());
+            // $currentRequest->getSession() === null ?: $request->setSession($currentRequest->getSession());
+            // $request->setJsonApiFactory($this->getFactory());
+            // $request->setQueryParameters($this->getQueryParameters());
+            // $request->setSchemaContainer($this->getSchemaContainer());
+        });
     }
 }

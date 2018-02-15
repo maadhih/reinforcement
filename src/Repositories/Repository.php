@@ -11,6 +11,7 @@ use Neomerx\JsonApi\Contracts\Http\Query\QueryParametersParserInterface as QP;
 use Neomerx\JsonApi\Exceptions\JsonApiException;
 use Neomerx\JsonApi\I18n\Translator as T;
 use Reinforcement\Database\Eloquent\Model;
+use Reinforcement\Exceptions\BadRequestException;
 use Reinforcement\Repositories\RepositoryInterface;
 
 /**
@@ -46,9 +47,9 @@ abstract class Repository
         return $query->get($this->getFieldSets($parameters));
     }
 
-    protected function with(EncodingParametersInterface $parameters = null, Builder $builder = null)
+    protected function with($parameters = null, Builder $builder = null)
     {
-        $with = (!is_null($parameters) && $parameters->getIncludePaths()) ? $parameters->getIncludePaths() : array();
+        $with = !empty($parameters)  ? $parameters['includes'] : [];
         if (is_null($this->relation) ) {
             return  (is_null($builder)) ? $this->getModel()->with($with) : $builder->with($with);
         } else {
@@ -91,10 +92,9 @@ abstract class Repository
 
     }
 
-    protected function getSorting(EncodingParametersInterface $parameters)
+    protected function getSorting($parameters)
     {
-        $sorting = $parameters->getSortParameters();
-        return is_array($sorting) ? $sorting : array();
+        return $parameters['sorts'];
     }
 
     protected function buildSorting($query, array $sorting = array(), $relation = null)
@@ -103,27 +103,27 @@ abstract class Repository
             return $query;
         }
         $model = $this->relation ? $this->model->{$this->relation}()->getModel() : $this->model;
-        $mappings = call_user_func_array([$model, 'mappings'], []);
+        // $mappings = call_user_func_array([$model, 'mappings'], []);
         foreach ($sorting as $sort) {
-            $field = $sort->getField();
-            if (is_array($mappings) && $dbField = array_search($field, $mappings)) {
-                $field = $dbField;
-            }
+            $field = $sort['field'];
+            // if (is_array($mappings) && $dbField = array_search($field, $mappings)) {
+            //     $field = $dbField;
+            // }
 
-            $query = $query->orderBy($field, ($sort->isAscending() ? 'asc' : 'desc'));
+            $query = $query->orderBy($field, $sort['direction']);
         }
 
         return $query;
     }
 
-    public function getPaginatedCollection($filtering, callable $callback = null)
+    public function getPaginatedCollection($parameters, callable $callback = null)
     {
         $query = $this->with($parameters);
         if ($callback) {
             $query = $callback($query);
         }
 
-        // $filtering = $parameters->getFilteringParameters();
+        $filtering = $parameters['filters'];
         if (!empty($filtering)) {
             $filteringColumns = $this->getFilteringColumns($filtering);
             if (isset($filteringColumns['query'])) {
@@ -286,10 +286,11 @@ abstract class Repository
      *
      * @return PagedDataInterface
      */
-    protected function paginateBuilder($builder, EncodingParametersInterface $parameters)
+    protected function paginateBuilder($builder, $parameters)
     {
+        //paging
         $builder = $builder->latest();
-        return $builder->paginate($this->getPageSize($parameters), $this->getFieldSets($parameters), 'page', $this->getPageNumber($parameters));
+        return $builder->paginate($this->getPageSize($parameters), $this->getFieldSets($parameters), 'page[number]', $this->getPageNumber($parameters));
     }
 
     public function getItem($id, EncodingParametersInterface $parameters = null, callable $callback = null)
@@ -390,20 +391,18 @@ abstract class Repository
         return app()->make($this->modelClass);
     }
 
-        /**
-     * @param EncodingParametersInterface|null $parameters
+    /**
      *
-     * @return int
+     * @param  array  $parameters
+     * @return string
      */
-    protected function getPageSize(EncodingParametersInterface $parameters)
+    protected function getPageSize(array $parameters)
     {
-        $paging = $parameters->getPaginationParameters();
+        $paging = $parameters['paging'];
         $size = isset($paging[self::PARAM_PAGING_SIZE]) ? $paging[self::PARAM_PAGING_SIZE] : self::DEFAULT_PAGE_SIZE;
         if($size > static::MAX_PAGE_SIZE) {
-            $errors = $this->getErrorCollection();
-            $errors->addQueryParameterError(QP::PARAM_PAGE, T::t(
-            'Page size of more than ' . static::MAX_PAGE_SIZE . 'records is not allowed'));
-            $this->throwException($errors);
+            throw new BadRequestException(
+            'Page size of more than ' . static::MAX_PAGE_SIZE . ' records is not allowed', $paging);
         }
         return $size;
     }
@@ -418,15 +417,15 @@ abstract class Repository
      *
      * @return int|null
      */
-    protected function getPageNumber(EncodingParametersInterface $parameters)
+    protected function getPageNumber($parameters)
     {
-        $paging = $parameters->getPaginationParameters();
+        $paging = $parameters['paging'];
         return isset($paging[self::PARAM_PAGING_NUMBER]) ? $paging[self::PARAM_PAGING_NUMBER] : null;
     }
 
-    protected function getFieldSets(EncodingParametersInterface $parameters)
+    protected function getFieldSets(array $parameters)
     {
-        return $parameters->getFieldSets() ?: array('*');
+        return !empty($parameters['columns']) ? $parameters['columns']: ['*'];
     }
 
     protected function throwException(ErrorCollection $errors, $status = Response::HTTP_BAD_REQUEST)

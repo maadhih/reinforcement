@@ -20,8 +20,8 @@ abstract class ResourceController extends BaseController
      */
     public function index()
     {
-        $paginator = $this->getRepository()->getPaginatedCollection($this->request->getFilteringParameters());
-        return $this->paginatedResponse($paginator);
+        $paginator = $this->getRepository()->getPaginatedCollection($this->request->getParameters());
+        return $paginator;
     }
 
 

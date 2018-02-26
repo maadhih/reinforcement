@@ -1,11 +1,12 @@
 <?php
 namespace Reinforcement\Http\Controllers;
-use Illuminate\Container\Container;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Routing\Controller AS IlluminateController;
+
 use Reinforcement\Http\Request;
+use Illuminate\Container\Container;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Reinforcement\Validation\ValidatesRequests;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Routing\Controller AS IlluminateController;
 
 abstract class BaseController extends IlluminateController
 {
@@ -15,5 +16,15 @@ abstract class BaseController extends IlluminateController
     {
         $this->app = $container;
         $this->request = $container->make($this->requestClass);
+    }
+
+    public function getValidator()
+    {
+        return $this->app->make($this->validatorClass);
+    }
+
+    public function validateRequest($removedReqired = false)
+    {
+        return $this->validate($this->validatorClass, $removedReqired);
     }
 }

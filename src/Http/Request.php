@@ -2,6 +2,7 @@
 namespace Reinforcement\Http;
 
 use Illuminate\Http\Request as IlluminateRequest;
+use Illuminate\Support\Str;
 use Reinforcement\Exceptions\BadRequestException;
 
 class Request extends IlluminateRequest
@@ -62,7 +63,7 @@ class Request extends IlluminateRequest
         $sortsToCheck =  [];
         $sortsFormatted =  [];
         foreach ($sorts as $value) {
-            if (starts_with($value, '-')) {
+            if (Str::startsWith($value, '-')) {
                 $value = ltrim($value, '-');
                 $sortsFormatted[] = ['field' => $value, 'direction' => 'desc'];
                 $sortsToCheck[] = $value;
@@ -73,7 +74,7 @@ class Request extends IlluminateRequest
             }
         }
 
-        $message = 'Request contains sorts that are not allowed';
+        $message = 'Request contains sorting parameters that are not allowed';
         $this->checkAllowedParams($allowedSorts, $sortsToCheck, $message);
         return $sortsFormatted;
     }
@@ -85,7 +86,7 @@ class Request extends IlluminateRequest
         $allowedPageParams = !empty($allowedPageParams)? $allowedPageParams : $this->allowedPageParams;
 
         $pageParams = $this->all()['page'];
-        $message = 'Request contains page params that are not allowed';
+        $message = 'Request contains page parameters that are not allowed';
         return $this->checkAllowedParams($allowedPageParams, $pageParams, $message);
     }
 

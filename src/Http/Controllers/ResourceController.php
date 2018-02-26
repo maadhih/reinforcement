@@ -4,6 +4,9 @@ use Reinforcement\Http\Controllers\BaseController;
 
 abstract class ResourceController extends BaseController
 {
+    protected $repository;
+    protected $repositoryClass;
+    protected $validatorClass;
 
 
     // public function __construct(Container $container, Repository $repository, JsonApiRequest $request)
@@ -11,8 +14,6 @@ abstract class ResourceController extends BaseController
     //     parent::__construct($container, $repository, $request);
     // }
 
-    protected $repository;
-    protected $repositoryClass;
     /**
      * Display a listing of the resource.
      *
@@ -31,8 +32,8 @@ abstract class ResourceController extends BaseController
     public function store()
     {
         $parameters = $this->validateRequest();
-        $model = $this->repository->create($parameters);
-        return $this->createdResponse($model);
+        $model = $this->getRepository()->create($parameters);
+        return $model;
     }
 
     /**

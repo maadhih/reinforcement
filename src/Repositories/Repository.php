@@ -309,9 +309,9 @@ abstract class Repository
         $relation = $this->relation;
 
         if (!$relation) {
-            return $this->model->create($data);
+            return $this->getModel()->create($data);
         }
-        $relation = $this->model->{$relation}();
+        $relation = $this->getModel()->{$relation}();
 
         if (method_exists($relation, 'withPivot')) {
             //get the key

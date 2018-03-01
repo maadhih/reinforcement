@@ -91,12 +91,7 @@ abstract class Validator
     abstract public function rules(Request $request, array $params = array());
     abstract public function mappings();
 
-    /**
-     * Validates the input.
-     *
-     * @throws Aasandha\Core\Helper\Validation\ValidationException
-     * @return array validated db value data
-     */
+
     public function validate($removeRequired = false)
     {
         if ($removeRequired) {
@@ -239,6 +234,8 @@ abstract class Validator
     {
        $response = [];
        foreach ($mappings as $inputKey => $dbValue) {
+        if (is_int($inputKey)) $inputKey = $dbValue;
+
             if (is_array($input) && array_get($input, $inputKey) !== null) {
                 $value = array_get($input, $inputKey);
                 if ($value instanceof UploadedFile) {

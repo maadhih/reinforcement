@@ -4,7 +4,7 @@ namespace Reinforcement\Validation;
 
 use Illuminate\Http\Request;
 
-class GeneralValidator extends Validator
+class GenericValidator extends Validator
 {
 	public $mappings = [];
 

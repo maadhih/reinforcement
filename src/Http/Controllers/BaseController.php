@@ -12,6 +12,9 @@ abstract class BaseController extends IlluminateController
 {
 	use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
+	protected $repository;
+	protected $usedInstances = [];
+
 	public function __construct(Container $container)
     {
         $this->app = $container;
@@ -26,5 +29,21 @@ abstract class BaseController extends IlluminateController
     public function validateRequest($removedReqired = false)
     {
         return $this->validate($this->validatorClass, $removedReqired);
+    }
+
+    protected function getRepository(string $class = null)
+    {
+    	if ($class) {
+    		if (empty($this->usedInstances[$class])) {
+	    		$this->usedInstances[$class] = $this->app->make($class);
+	    	}
+		    return $this->usedInstances[$class];
+    	}
+
+    	if (empty($this->repository)) {
+    		$this->repository = $this->app->make($this->repositoryClass);
+    	}
+
+	    return $this->repository;
     }
 }

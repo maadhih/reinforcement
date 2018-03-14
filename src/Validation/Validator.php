@@ -6,7 +6,6 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Application;
 use Reinforcement\Exceptions\ValidationException;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 abstract class Validator
 {
@@ -238,19 +237,16 @@ abstract class Validator
 
             if (is_array($input) && array_get($input, $inputKey) !== null) {
                 $value = array_get($input, $inputKey);
-                if ($value instanceof UploadedFile) {
-                    array_set($response, $dbValue, $value);
-                } elseif (is_array($value)) {
-                    if (class_exists($mappings[$inputKey]['class'])) {
+                if (is_scalar($value)) {
+                     array_set($response, $dbValue, (is_bool($value) ? $value : trim($value)));
+                } elseif (is_array($value) && class_exists($mappings[$inputKey]['class'])) {
                         $class = new $mappings[$inputKey]['class']($this->app);
                         foreach ($value as $v) {
                             $response[$mappings[$inputKey]['key']][] = $this->getDbValues($v, $class->mappings());
                         }
-                    } else {
-                        array_set($response, $dbValue, $value);
-                    }
+
                 } else {
-                    array_set($response, $dbValue, (is_bool($value) ? $value : trim($value)));
+                    array_set($response, $dbValue, $value);
                 }
             }
         }

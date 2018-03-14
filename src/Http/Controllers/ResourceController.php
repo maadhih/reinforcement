@@ -4,7 +4,6 @@ use Reinforcement\Http\Controllers\BaseController;
 
 abstract class ResourceController extends BaseController
 {
-    protected $repository;
     protected $repositoryClass;
     protected $validatorClass;
 
@@ -49,13 +48,6 @@ abstract class ResourceController extends BaseController
         $model = $this->getRepository()->getItem($id, $parameters);
         return $model;
         return $this->modelResponse($model);
-    }
-
-    protected function getRepository()
-    {
-    	if (!empty($this->repository)) return $this->repository;
-
-    	return app()->make($this->repositoryClass);
     }
 
     /**

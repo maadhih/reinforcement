@@ -37,8 +37,9 @@ trait ValidatesRequests
     {
         if (is_string($validator)) {
             $validator = $this->app->make($validator);
+
         } elseif (is_array($validator)) {
-            $validator = $this->app->make(GeneralValidator::class)->createFromArray($validator);
+            $validator = $this->app->make(GenericValidator::class)->createFromArray($validator);
         }
         return $validator->validate($removeRequired);
         /*try {

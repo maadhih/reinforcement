@@ -12,6 +12,7 @@ use Neomerx\JsonApi\Exceptions\JsonApiException;
 use Neomerx\JsonApi\I18n\Translator as T;
 use Reinforcement\Database\Eloquent\Model;
 use Reinforcement\Exceptions\BadRequestException;
+use Reinforcement\Repositories\FilteringTrait;
 use Reinforcement\Repositories\RepositoryInterface;
 
 /**
@@ -19,6 +20,8 @@ use Reinforcement\Repositories\RepositoryInterface;
 */
 abstract class Repository
 {
+    use FilteringTrait;
+
     const PARAM_PAGING_SIZE = 'size';
     const PARAM_PAGING_NUMBER = 'number';
     const DEFAULT_PAGE_SIZE = 15;
@@ -76,17 +79,17 @@ abstract class Repository
         //
 
         if ($this->relation) {
-            $method = 'get' . ucfirst($this->relation) . 'Filtring';
-            $availableFilterings = call_user_func_array(array($this, $method), array());
+            $method = 'get' . ucfirst($this->relation) . 'Filtering';
+            $availableFilterings = $this->$method();
         } else {
-            $availableFilterings =  is_array($this->getFiltering()) ? $this->getFiltering() : array();
+            $availableFilterings =  is_array($this->getFiltering()) ? $this->getFiltering() : [];
         }
 
-        $array = array_diff(array_keys($filtering), array_keys($availableFilterings));
-        if (!empty($array)) {
-            throw new RepositoryException('\'' . implode(',', $array) . '\' is not available for the filtering.');
+        // $array = array_diff(array_keys($filtering), array_keys($availableFilterings));
+        // if (!empty($array)) {
+        //     throw new RepositoryException('\'' . implode(',', $array) . '\' is not available for the filtering.');
 
-        }
+        // }
 
         return $availableFilterings;
 
@@ -125,160 +128,16 @@ abstract class Repository
 
         $filtering = $parameters['filters'];
         if (!empty($filtering)) {
-            $filteringColumns = $this->getFilteringColumns($filtering);
-            if (isset($filteringColumns['query'])) {
-                $query = $this->buildSelectForFullText($query, $filtering, $filteringColumns);
-            }
-            foreach ($filtering as $key => $term) {
-                $columns = array_get($filteringColumns, $key);
-                $columns = $this->getColumnNames($columns, $key);
-                $searchTerm = trim($term);
-                if($key === 'query') {
-                    $query = $this->filterByColumns($query, $columns, $searchTerm, 'LIKE');
-                } else {
-                    $column = array_shift($columns);
-                    $query = $this->filterByColumn($query, $column, (strpos($searchTerm, '-') === 0 ? '!=':'='), $searchTerm, 'AND');
-                }
-
-            }
+            $filteringMap = $this->getFilteringColumns($filtering);
+            $query = $this->buildFilteredQuery($query, $filtering, $filteringMap);
         }
+
 
         $query = $this->buildSorting($query, $this->getSorting($parameters));
         return $this->paginateBuilder($query, $parameters);
     }
 
-    protected function getColumnNames($columns, $key)
-    {
-        if (is_null($columns)) {
-            throw new FilteringException("Provided filter term '{$key}' can not  be found in filtering parameters.");
-        }
-        return (is_array($columns) ? $columns : explode(' ', $columns));
-    }
 
-    protected function filterByColumns($query, array $columns, $term, $operation = '=')
-    {
-        $table = null;
-        $term = strtolower($operation) === 'like' ? '%'.$term.'%' : $term;
-        if(method_exists($query, 'getTable')) {
-            $table = $query->getTable();
-        }
-        return $query->where(function($query) use ($term, $columns, $operation, $table) {
-            foreach ($columns as $column) {
-                if (strpos($column, 'pivot.') === 0) {
-                    $column = $table .'.'. substr($column, 6);
-                }
-                $query = $this->filterByColumn($query, $column, $operation, $term, 'OR', strpos($column, 'fulltext.') === 0);
-            }
-            return $query;
-        });
-    }
-
-    protected function filterByColumn($query, $column, $operation, $term, $andOr = 'OR', $fulltext = false)
-    {
-        if(isset($query->getModel()->casts) && isset($query->getModel()->casts[$column])) {
-            $term = $this->castAttribute($query->getModel()->casts[$column], $term);
-        }
-        if ($fulltext) {
-            $column = substr($column, 9);
-            $query->orWhereRaw("MATCH($column) AGAINST(?)", array($term));
-        }
-        return $this->buildWhereClause($query, $column, $operation, $term, $andOr);
-    }
-
-    /**
-     * Cast an attribute to a native PHP type.
-     *
-     * @param  string  $key
-     * @param  mixed  $value
-     * @return mixed
-     */
-    protected function castAttribute($key, $value)
-    {
-        if (is_null($value)) {
-            return $value;
-        }
-        $key = strtolower($key);
-        switch ($key) {
-            case 'int':
-            case 'integer':
-                return (int) $value;
-            case 'real':
-            case 'float':
-            case 'double':
-                return (float) $value;
-            case 'string':
-                return (string) $value;
-            case 'bool':
-            case 'boolean':
-                return (bool) $value;
-            default:
-                return $value;
-        }
-    }
-
-    protected function buildWhereClause($query, $column, $operation, $term, $andOr = 'OR')
-    {
-        $negate = false;
-        if (strpos($term, '-') === 0) {
-            $negate = true;
-            $term = trim($term, '-');
-        }
-        if ($negate) {
-            if ($term === '\0') { // this mean treat is as a null
-                $query->whereNotNull($column);
-            } elseif (str_contains($term, ',')) {
-                $query->whereNotIn($column, explode(',', $term));
-            } else {
-                $isDate = (bool) strtotime($term);
-                if ($isDate) {
-                    $query->whereDate($column, $operation, $term, $andOr);
-                } else {
-                    $query = $this->buildSimpleWhere($query, $column, $operation, $term, $andOr);
-                }
-            }
-        } else {
-            if ($term === '\0') { // this mean treat is as a null
-                $query->whereNull($column);
-            } elseif (str_contains($term, ',')) {
-                $query->whereIn($column, explode(',', $term));
-            } else {
-                $isDate = (bool) strtotime($term);
-                if ($isDate) {
-                    $query->whereDate($column, $operation, $term, $andOr);
-                } else {
-                    $query = $this->buildSimpleWhere($query, $column, $operation, $term, $andOr);
-                }
-            }
-        }
-        return $query;
-    }
-
-    protected function buildSimpleWhere($query, $column, $operation, $term, $andOr = 'OR')
-    {
-        return $query->where($column, $operation, $term, $andOr);
-    }
-
-    protected function buildSelectForFullText($query, $filtering, $filteringColumns)
-    {
-        if (!isset($filtering['query'])) {
-            return $query;
-        }
-        if(! is_array($filteringColumns['query'])) {
-            $filteringColumns['query'] = explode(' ', $filteringColumns['query']);
-        }
-        $relevence = array_where($filteringColumns['query'], function($key, $value) {
-            return strpos($value, 'fulltext.') === 0;
-        });
-
-        if (empty($relevence)) {
-            return $query;
-        }
-
-        $searchTerm = trim($filtering['query']);
-        $column = array_shift($relevence);
-        $column = substr($column, 9);
-        return $query->selectRaw('*, MATCH('. $column .') AGAINST("'. $searchTerm .'") AS relevance');
-    }
 
     /**
      * @param Builder                     $builder

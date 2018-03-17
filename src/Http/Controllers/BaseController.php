@@ -36,7 +36,7 @@ abstract class BaseController extends IlluminateController
     	if ($class) {
     		if (empty($this->usedInstances[$class])) {
 	    		$this->usedInstances[$class] = $this->app->make($class);
-	    	}
+			}
 		    return $this->usedInstances[$class];
     	}
 
@@ -44,6 +44,6 @@ abstract class BaseController extends IlluminateController
     		$this->repository = $this->app->make($this->repositoryClass);
     	}
 
-	    return $this->repository;
+		return $this->repository;
     }
 }

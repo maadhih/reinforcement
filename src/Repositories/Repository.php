@@ -82,7 +82,7 @@ abstract class Repository
             $method = 'get' . ucfirst($this->relation) . 'Filtering';
             $availableFilterings = $this->$method();
         } else {
-            $availableFilterings =  is_array($this->getFiltering()) ? $this->getFiltering() : [];
+            $availableFilterings =  (method_exists($this, 'filteringMap') && is_array($this->filteringMap())) ? $this->filteringMap() : [];
         }
 
         // $array = array_diff(array_keys($filtering), array_keys($availableFilterings));
@@ -105,15 +105,16 @@ abstract class Repository
         if (empty($sorting)) {
             return $query;
         }
-        $model = $this->relation ? $this->model->{$this->relation}()->getModel() : $this->model;
-        // $mappings = call_user_func_array([$model, 'mappings'], []);
+
+        $sortingMap =  (method_exists($this, 'filteringMap') && is_array($this->sortingMap())) ? $this->sortingMap() : false;
+
         foreach ($sorting as $sort) {
             $field = $sort['field'];
-            // if (is_array($mappings) && $dbField = array_search($field, $mappings)) {
-            //     $field = $dbField;
-            // }
+            if ($sortingMap && !empty($sortingMap[$field])) {
+                $field = $sortingMap[$field];
+            }
 
-            $query = $query->orderBy($field, $sort['direction']);
+            $query->orderBy($field, $sort['direction']);
         }
 
         return $query;
@@ -132,31 +133,29 @@ abstract class Repository
             $query = $this->buildFilteredQuery($query, $filtering, $filteringMap);
         }
 
-
         $query = $this->buildSorting($query, $this->getSorting($parameters));
         return $this->paginateBuilder($query, $parameters);
     }
 
 
-
     /**
-     * @param Builder                     $builder
-     * @param EncodingParametersInterface $parameters
+     * @param Builder $builder
+     * @param array $parameters
      *
      * @return PagedDataInterface
      */
-    protected function paginateBuilder($builder, $parameters)
+    protected function paginateBuilder(Builder $builder, $parameters)
     {
         //paging
         $builder = $builder->latest();
         return $builder->paginate($this->getPageSize($parameters), $this->getFieldSets($parameters), 'page[number]', $this->getPageNumber($parameters));
     }
 
-    public function getItem($id, EncodingParametersInterface $parameters = null, callable $callback = null)
+    public function getItem($id, $parameters = null, callable $callback = null)
     {
         $query = $this->with($parameters);
 
-        if (! is_null($callback)) {
+        if (!empty($callback)) {
             $query = $callback($query);
         }
 
@@ -326,8 +325,7 @@ abstract class Repository
 
     public function beginTransaction()
     {
-        $this->connection = $this->getConnection();
-        $this->connection->beginTransaction();
+        $this->getConnection()->beginTransaction();
     }
 
     public function commit()

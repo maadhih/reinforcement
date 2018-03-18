@@ -106,7 +106,7 @@ abstract class Repository
             return $query;
         }
 
-        $sortingMap =  (method_exists($this, 'filteringMap') && is_array($this->sortingMap())) ? $this->sortingMap() : false;
+        $sortingMap =  (method_exists($this, 'sortingMap') && is_array($this->sortingMap())) ? $this->sortingMap() : false;
 
         foreach ($sorting as $sort) {
             $field = $sort['field'];

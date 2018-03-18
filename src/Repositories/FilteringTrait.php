@@ -24,6 +24,8 @@ trait FilteringTrait
             }
 
         }
+
+        return $query;
     }
 
     protected function getColumnNames($columns, $key)

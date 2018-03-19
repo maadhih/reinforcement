@@ -35,10 +35,6 @@ abstract class Repository
     protected $resourceId = null;
     protected $relation = null;
 
-    // public function __construct(Model $model)
-    // {
-    //     $this->model = $model;
-    // }
 
     public function getCollection(EncodingParametersInterface $parameters, callable $callback = null)
     {
@@ -73,9 +69,7 @@ abstract class Repository
 
     protected function getFilteringColumns(array $filtering = array())
     {
-        //get the available filtering columns to be filtered
-        //filtering columns for parent will get getFiltering
-        //for the relationship filtering it will be get{relation}Filtring
+        //for the relationship filtering it will be get{relation}Filtering
         //
 
         if ($this->relation) {
@@ -170,11 +164,10 @@ abstract class Repository
             return $this->getModel()->create($data);
         }
         $relation = $this->getModel()->{$relation}();
-
+//getrelationtype
         if (method_exists($relation, 'withPivot')) {
             //get the key
-            $otherkey = explode('.', $relation->getQualifiedRelatedKeyName());
-            $key = array_pop($otherkey);
+            $key = $relation->getRelatedPivotKeyName();
             if (!array_key_exists($key, $data)) {
                 throw new \Exception("The otherkey value does not match the pivot relation otherkey. Please check the keys at validator.");
             }

@@ -6,10 +6,6 @@ use App\JsonApi\Errors\ErrorCollection;
 use App\Repositories\RepositoryException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Response;
-use Neomerx\JsonApi\Contracts\Encoder\Parameters\EncodingParametersInterface;
-use Neomerx\JsonApi\Contracts\Http\Query\QueryParametersParserInterface as QP;
-use Neomerx\JsonApi\Exceptions\JsonApiException;
-use Neomerx\JsonApi\I18n\Translator as T;
 use Reinforcement\Database\Eloquent\Model;
 use Reinforcement\Exceptions\BadRequestException;
 use Reinforcement\Repositories\FilteringTrait;
@@ -36,7 +32,7 @@ abstract class Repository
     protected $relation = null;
 
 
-    public function getCollection(EncodingParametersInterface $parameters, callable $callback = null)
+    public function getCollection($parameters, callable $callback = null)
     {
         $query = $this->with($parameters);
         if ($callback) {
@@ -48,18 +44,20 @@ abstract class Repository
 
     protected function with($parameters = null, Builder $builder = null)
     {
-        $with = !empty($parameters)  ? $parameters['includes'] : [];
+        $with = !empty($parameters['includes'])  ? $parameters['includes'] : [];
+
+        if ($builder) {
+            return $builder->with($with);
+        }
+
         if (is_null($this->relation) ) {
-            return  (is_null($builder)) ? $this->getModel()->with($with) : $builder->with($with);
+            return  $this->getModel()->with($with);
         } else {
-            if (is_null($builder)) {
-                return $this->getModel()->{$this->relation}()->with($with);
-            } else {
-                return $builder->with($with);
-            }
+            return $this->getModel()->{$this->relation}()->with($with);
         }
     }
 
+/////
     public function load(EncodingParametersInterface $parameters = null, Model $model)
     {
         $with = (!is_null($parameters) && $parameters->getIncludePaths()) ? $parameters->getIncludePaths() : array();

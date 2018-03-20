@@ -43,7 +43,9 @@ class ReinforcementServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->commands($this->commands);
+        if ($this->app->isLocal()) {
+            $this->commands($this->commands);
+        }
     }
 
     protected function configureRequests()

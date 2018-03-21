@@ -2,9 +2,9 @@
 
 namespace Reinforcement\Console\Commands;
 
-use Reinforcement\Console\Commands\FieldCollection;
 use Illuminate\Console\Command;
 use Illuminate\Container\Container;
+use Reinforcement\Database\MigrationParser;
 use Stringy\Stringy;
 
 /**
@@ -26,13 +26,8 @@ class AbstractCommand extends Command
 
     public function getFieldCollection($migrationClassName)
     {
-    	$migrationClass = new \ReflectionClass($migrationClassName);
-
-        $migrationFile = file_get_contents($migrationClass->getFileName());
-
-        eval('$a= function ('. Stringy::create($migrationFile)->stripWhitespace()->between("function(", '}')->replace('Blueprint', FieldCollection::class) .'return $table;};');
-        $fieldCollection = $a(new FieldCollection);
-        return $fieldCollection;
+    	$parser = new MigrationParser($migrationClassName, $this->laravel->databasePath().DIRECTORY_SEPARATOR.'migrations');
+        return $parser->getFieldCollection();
     }
 
     public function insertAfter($string, $insert, $after)

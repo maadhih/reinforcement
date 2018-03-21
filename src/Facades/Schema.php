@@ -26,9 +26,24 @@ class Schema extends Facade
     protected static function getFacadeAccessor()
     {
         $builder = static::$app['db']->connection()->getSchemaBuilder();
-        $builder->blueprintResolver(function($table, $callback){
-            return new Blueprint($table, $callback);
+
+        $resolver = Blueprint::class;
+
+        if (static::$app->isLocal() && !empty(session('blueprint-resolver'))) {
+            $resolver = session('blueprint-resolver');
+        }
+
+        $builder->blueprintResolver(function($table, $callback = null) use ($resolver) {
+            if (is_object($resolver)) {
+               return $resolver->load($table, $callback);
+            }
+            return new $resolver($table, $callback);
         });
         return $builder;
+    }
+
+    public static function setBlueprintResolver($class)
+    {
+        session(['blueprint-resolver' => $class]);
     }
 }

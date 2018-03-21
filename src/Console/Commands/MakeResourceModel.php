@@ -10,14 +10,14 @@ class MakeResourceModel extends AbstractCommand
      *
      * @var string
      */
-    protected $signature = 'reinforcement:resource:model {resources*} {--module=*} {--migration=*} {--new-fields=*}';
+    protected $signature = 'reinforcement:model {resources*} {--module=*} {--migration=*} {--new-fields=*}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Create model(s) that extends the Support model';
+    protected $description = 'Create model(s) that extends the Reinforcement model';
 
     protected $namespace;
 
@@ -41,7 +41,7 @@ class MakeResourceModel extends AbstractCommand
     {
         $ds = DIRECTORY_SEPARATOR;
         $resources = $this->argument('resources');
-        $resources = !is_array($resources) ? [$resources] : $resources;
+        $resources = (array) $resources;
         $module = $this->option('module');
         $migration = $this->option('migration');
         $newFields = $this->option('new-fields');
@@ -50,32 +50,17 @@ class MakeResourceModel extends AbstractCommand
         $fillables = '';
         $relations = '';
         if ($migration) {
-             $fieldCollection = $this->getFieldCollection('\\'.$migration[0]);
+            $fieldCollection = $this->getFieldCollection($migration[0]);
             $fillables = $fieldCollection->getFieldsString();
+            dd($fieldCollection->getFieldsMappedToValue('required'), $fillables);
 
             foreach ($fieldCollection->getRelations() as $relation) {
                 $relations .= "public function $relation()\n{\nreturn \$this->belongsTo(".ucfirst($relation)."::class);\n}\n\n";
             }
         }
 
-        if ($module) {
-            $module = is_array($module) ? $module[0] : $module;
-            $moduleDirectory = config('support.module.directory') . DIRECTORY_SEPARATOR . ucfirst($module);
+        $this->namespace = rtrim($this->namespace, "\\");
 
-            $this->namespace = $this->getAppNamespace() . ucfirst($module) . '\\' . str_replace($ds, '\\', config('support.module.models'));
-            $directory = config('support.module.directory') . DIRECTORY_SEPARATOR . ucfirst($module) . $ds . config('support.module.models');
-
-            if (!file_exists($moduleDirectory)) {
-                $this->error("The requested module '$moduleDirectory' does not exists!");
-                return;
-            }
-
-            if(config('support.namespace')) {
-                $this->namespace = config('support.namespace');
-            }
-        } else {
-            $this->namespace = rtrim($this->namespace, "\\");
-        }
 
         foreach ($resources as $resource) {
             $filename = $directory . $ds . str_singular(ucfirst($resource)) . '.php';

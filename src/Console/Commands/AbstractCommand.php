@@ -38,4 +38,19 @@ class AbstractCommand extends Command
 
         return $firstHalf . $insert . $secondHalf;
     }
+
+    protected function writeFile($filename, $data)
+    {
+        $filePath = $this->writeDirectory . DIRECTORY_SEPARATOR . $filename;
+        if (!file_exists($this->writeDirectory)) {
+            mkdir($this->writeDirectory, 0777, true);
+        }
+
+        if (file_exists($filePath)) {
+            $this->info($filePath . ' already exists!');
+            return;
+        }
+
+        return file_put_contents($filePath, $data);
+    }
 }

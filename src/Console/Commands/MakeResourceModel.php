@@ -20,6 +20,8 @@ class MakeResourceModel extends AbstractCommand
     protected $description = 'Create model(s) that extends the Reinforcement model';
 
     protected $namespace;
+    protected $writeDirectory;
+    protected $stub;
 
     /**
      * Create a new command instance.
@@ -28,7 +30,10 @@ class MakeResourceModel extends AbstractCommand
      */
     public function __construct()
     {
+        $ds = DIRECTORY_SEPARATOR;
         $this->namespace = $this->getAppNamespace();
+        $this->writeDirectory = app_path() .$ds. 'Models';
+        $this->stub = $this->resourcesPath . $ds . 'Stubs' . $ds . 'Standard' . $ds . 'Model.stub';
         parent::__construct();
     }
 
@@ -45,7 +50,6 @@ class MakeResourceModel extends AbstractCommand
         $module = $this->option('module');
         $migration = $this->option('migration');
         $newFields = $this->option('new-fields');
-        $directory = app_path() .$ds. 'Models';
 
         $fillables = '';
         $relations = '';
@@ -54,39 +58,40 @@ class MakeResourceModel extends AbstractCommand
             $fillables = $fieldCollection->getFieldsString();
             dd($fieldCollection->getFieldsMappedToValue('required'), $fillables);
 
-            foreach ($fieldCollection->getRelations() as $relation) {
-                $relations .= "public function $relation()\n{\nreturn \$this->belongsTo(".ucfirst($relation)."::class);\n}\n\n";
-            }
+            $relations = $this->getRelationDefinitions($fieldCollection->getRelations());
+
         }
 
         $this->namespace = rtrim($this->namespace, "\\");
 
 
         foreach ($resources as $resource) {
-            $filename = $directory . $ds . str_singular(ucfirst($resource)) . '.php';
-
             if ($newFields) {
                 return $this->addNewFields($newFields, $filename);
             }
 
-            $stub = file_get_contents($this->resourcesPath . $ds . 'Stubs' . $ds . (empty($module) ? 'Standard' : 'Modular') . $ds . 'Model.stub');
-            $stub = str_replace(
-                        ['{{namespace}}',  '{{resource}}', '{{fillables}}', '{{relations}}'],
-                        [$this->namespace,  str_singular(ucfirst($resource)), $fillables, $relations],
-                        $stub);
+            $model = $this->makeModel($this->namespace, $resource, $fillables, $relations);
+            $this->writeFile(str_singular(ucfirst($resource)) . '.php', $model);
 
-            if (!file_exists($directory)) {
-                mkdir($directory, 0777, true);
-            }
-
-            if (file_exists($filename)) {
-                $this->info($filename . ' already exists!');
-                return;
-            }
-
-            file_put_contents($filename, $stub);
             $this->info($filename . ' created!');
         }
+    }
+
+    public function makeModel($namespace, $className, $fillables = '', $relationMethods ='') {
+        $stub = file_get_contents($this->stub);
+            $stub = str_replace(
+                        [
+                          '{{namespace}}',
+                          '{{resource}}',
+                          '{{fillables}}',
+                          '{{relations}}'
+                        ],
+                        [
+                            $namespace,
+                            str_singular(ucfirst($className)),
+                            $fillables,
+                            $relationMethods
+                        ], $stub);
     }
 
     protected function addNewFields($newFields, $filename)
@@ -101,5 +106,12 @@ class MakeResourceModel extends AbstractCommand
         file_put_contents($filename, $newfile);
         $this->info($filename . ' updated!');
         return true;
+    }
+
+    protected function getRelationDefinitions (array $relations) {
+        $definition = '';
+        foreach ($relations as $relation) {
+                $definition .= "public function $relation()\n{\nreturn \$this->belongsTo(".ucfirst($relation)."::class);\n}\n\n";
+            }
     }
 }

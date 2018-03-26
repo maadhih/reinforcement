@@ -7,6 +7,7 @@ use Illuminate\Database\Connection;
 use Illuminate\Database\Schema\Grammars\Grammar;
 use Illuminate\Filesystem\Filesystem;
 use Reinforcement\Database\Schema\Blueprint;
+use Reinforcement\Support\Str;
 
 
 class FieldCollection extends Blueprint
@@ -51,7 +52,7 @@ class FieldCollection extends Blueprint
 
     	if($method == 'foreign') {
     		$this->foreignKeys[] = $parameters[0];
-    		$this->relations[] = camel_case(str_replace('_id', '', $parameters[0]));
+    		$this->relations[] = Str::camel(str_replace('_id', '', $parameters[0]));
     	}
 
         return $this;
@@ -70,7 +71,7 @@ class FieldCollection extends Blueprint
         if ($name == 'foreign') {
             $column = $parameters['columns'][0];
             $this->foreignKeys[] = $column;
-            $this->relations[] = camel_case(str_replace('_id', '', $column));
+            $this->relations[] = Str::camel(str_replace('_id', '', $column));
         }
 
         return $this;
@@ -86,9 +87,9 @@ class FieldCollection extends Blueprint
     	return $this->relations;
     }
 
-    public function getFieldsString()
+    public function getFieldsString($indent = 0)
     {
-    	return $this->arrayToFormattedString($this->fields);
+    	return $this->arrayToFormattedString($this->fields, $indent);
     }
 
     public function getRelationsString()
@@ -100,7 +101,7 @@ class FieldCollection extends Blueprint
     {
         $foreignKeys =  array_map(function ($value)
         {
-            return str_slug(str_replace('_id', '', $value));
+            return Str::slug(str_replace('_id', '', $value));
         }, $this->foreignKeys);
         return $this->arrayToFormattedString($foreignKeys);
     }
@@ -118,25 +119,21 @@ class FieldCollection extends Blueprint
     }
 
 
-    function encloseValuesInQuotes(array $array) {
-        return array_map(function ($value)
+    function encloseValuesInQuotes(array $array, $indent = 0) {
+        return array_map(function ($value) use ($indent)
         {
-            return $this->encloseInQuotes($value);
+            return $this->encloseInQuotes($value, $indent);
         }, $array);
     }
 
-    public function encloseInQuotes(string $string) {
-        return "'".$string."'";
+    public function encloseInQuotes(string $string, $indent = 0) {
+        return Str::indent($indent)."'".$string."'";
     }
 
-    public function indent(string $string, int $level = 1, int $spaces = 4) {
-        return str_repeat(" ", ($level * $spaces)).$string;
-    }
-
-    public function arrayToFormattedString($array) {
+    public function arrayToFormattedString($array, $indent = 0) {
         if (empty($array)) return '';
 
-        $array = $this->encloseValuesInQuotes($array);
+        $array = $this->encloseValuesInQuotes($array, $indent);
         return implode(",\n", $array);
     }
 

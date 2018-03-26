@@ -2,15 +2,14 @@
 
 namespace {{namespace}}Http\Controllers;
 
-use Illuminate\Container\Container;
-use App\Http\Controllers\ApiController;
+use {{namespace}}Validators\{{resource}}Validator;
 use {{namespace}}Http\Requests\{{resource}}Request;
 use {{namespace}}Repositories\{{resource}}Repository;
+use Reinforcement\Http\Controllers\ResourceController;
 
-class {{class}}Controller extends ApiController
+class {{className}}Controller extends ResourceController
 {
-    public function __construct(Container $container, {{resource}}Repository $repository, {{resource}}Request $request)
-    {
-        parent::__construct($container, $repository, $request);
-    }
+    protected $repositoryClass ={{resource}}Repository::class;
+    protected $requestClass ={{resource}}Request::class;
+    protected $validatorClass ={{resource}}Validator::class;
 }

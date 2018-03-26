@@ -2,6 +2,8 @@
 
 namespace Reinforcement\Console\Commands;
 
+use Reinforcement\Support\Str;
+
 class MakeResourceController extends AbstractCommand
 {
     /**
@@ -9,14 +11,14 @@ class MakeResourceController extends AbstractCommand
      *
      * @var string
      */
-    protected $signature = 'reinforcement:resource:controller {resources*} {--module=*}';
+    protected $signature = 'reinforcement:controller {resources*}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Create controller(s) that extends the Support controller';
+    protected $description = 'Create controller(s) that extends the Reinforcement controller';
 
     protected $namespace;
 
@@ -27,8 +29,11 @@ class MakeResourceController extends AbstractCommand
      */
     public function __construct()
     {
-        $this->namespace = $this->getAppNamespace();
         parent::__construct();
+        $ds = DIRECTORY_SEPARATOR;
+
+        $this->writeDirectory = app_path('Http' . $ds . 'Controllers');
+        $this->stub = $this->stubPath . 'Standard' . $ds . 'Controller.stub';
     }
 
     /**
@@ -38,49 +43,24 @@ class MakeResourceController extends AbstractCommand
      */
     public function handle()
     {
-        $ds = DIRECTORY_SEPARATOR;
-        $resources = $this->argument('resources');
-        $resources = !is_array($resources) ? [$resources] : $resources;
-        $module = $this->option('module');
-        $directory = app_path('Http' . $ds . 'Controllers');
+        $resources = (array) $this->argument('resources');
 
-        if ($module) {
-            $module = is_array($module) ? $module[0] : $module;
-            $moduleDirectory = config('support.module.directory') . $ds . ucfirst($module);
-
-            $this->namespace = $this->getAppNamespace() . ucfirst($module);
-            $directory = config('support.module.directory') . $ds . ucfirst($module) . $ds . config('support.module.controllers');
-
-            if (!file_exists($moduleDirectory)) {
-                $this->error("The requested module '$moduleDirectory' does not exists!");
-                return;
-            }
-
-            if(config('support.namespace')) {
-                $this->namespace = config('support.namespace');
-            }
-        }
 
         foreach ($resources as $resource) {
-            $stub = file_get_contents($this->resourcesPath . $ds . 'Stubs' . $ds . (empty($module) ? 'Standard' : 'Modular') . $ds . 'Controller.stub');
-            $stub = str_replace([
-                            '{{namespace}}',
-                            '{{resource}}',
-                            '{{class}}'
-                        ],
-                        [
-                            $this->namespace,
-                            str_singular(ucfirst($resource)),
-                            str_plural(ucfirst($resource))
-                        ], $stub);
 
-            if (!file_exists($directory)) {
-                mkdir($directory, 0777, true);
-            }
+            $controller = $this->makeController($this->namespace, $resource);
 
-            $filename = $directory . $ds . str_plural(ucfirst($resource)) . 'Controller.php';
-            file_put_contents($filename, $stub);
-            $this->info($filename . ' created!');
+            $this->writeFile(Str::plural(ucfirst($resource)) . 'Controller', $controller);
         }
+    }
+
+    public function makeController($namespace, $resource) {
+
+        return $this->buildFromStub($this->stub,
+            [
+                'namespace' => $namespace,
+                'resource' => Str::singular(ucfirst($resource)),
+                'className' => Str::plural(ucfirst($resource)),
+            ]);
     }
 }

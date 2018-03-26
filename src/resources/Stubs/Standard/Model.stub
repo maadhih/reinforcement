@@ -2,12 +2,12 @@
 
 namespace {{namespace}}\Models;
 
-use App\Models\Core;
+use Reinforcement\Database\Eloquent\Model;
 
-class {{resource}} extends Core
+class {{className}} extends Model
 {
     protected $fillable = [
-        {{fillables}}
+{{fillables}}
     ];
 
     public static function mappings()
@@ -17,5 +17,5 @@ class {{resource}} extends Core
         ];
     }
 
-    {{relations}}
+{{relations}}
 }

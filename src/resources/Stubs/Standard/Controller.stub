@@ -9,7 +9,7 @@ use Reinforcement\Http\Controllers\ResourceController;
 
 class {{className}}Controller extends ResourceController
 {
-    protected $repositoryClass ={{resource}}Repository::class;
-    protected $requestClass ={{resource}}Request::class;
-    protected $validatorClass ={{resource}}Validator::class;
+    protected $repositoryClass = {{resource}}Repository::class;
+    protected $requestClass = {{resource}}Request::class;
+    protected $validatorClass = {{resource}}Validator::class;
 }

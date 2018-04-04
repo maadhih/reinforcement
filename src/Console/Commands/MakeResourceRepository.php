@@ -19,7 +19,7 @@ class MakeResourceRepository extends AbstractCommand
      *
      * @var string
      */
-    protected $description = 'Create repositor(y/ies) that extends the Support repository';
+    protected $description = 'Create repositor(y/ies) that extends the Reinforcement repository';
 
     protected $namespace;
 

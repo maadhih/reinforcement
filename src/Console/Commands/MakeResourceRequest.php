@@ -19,7 +19,7 @@ class MakeResourceRequest extends AbstractCommand
      *
      * @var string
      */
-    protected $description = 'Create a request that extends the Support request';
+    protected $description = 'Create a request that extends the Reinforcement request';
 
     protected $namespace;
 

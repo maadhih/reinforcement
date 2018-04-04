@@ -19,7 +19,7 @@ class MakeResourceValidator extends AbstractCommand
      *
      * @var string
      */
-    protected $description = 'Create a validator that extends the Support abstract validator';
+    protected $description = 'Create a validator that extends the Reinforcement validator';
 
     protected $namespace;
 

@@ -19,7 +19,7 @@ class MakeResourceSeeder extends AbstractCommand
      *
      * @var string
      */
-    protected $description = 'Create seeder(s) that extends the Support seeder';
+    protected $description = 'Create seeder(s) that extends the Reinforcement seeder';
 
     protected $namespace;
 

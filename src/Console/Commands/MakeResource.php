@@ -9,14 +9,14 @@ class MakeResource extends AbstractCommand
      *
      * @var string
      */
-    protected $signature = 'reinforcement:resource {resources*} {--module=*} {--migration=*} {--new-fields=*}';
+    protected $signature = 'reinforcement:resource {resources*} {--migration=*} {--new-fields=*}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Create default scaffolding for resources in compliance with the Support module';
+    protected $description = 'Create default scaffolding for resources';
 
     /**
      * Create a new command instance.
@@ -36,55 +36,97 @@ class MakeResource extends AbstractCommand
     public function handle()
     {
         $resources = $this->argument('resources');
-        $module = $this->option('module');
         $migration = $this->option('migration');
         $newFields = $this->option('new-fields');
 
-        if ($module) {
-            $module = is_array($module) ? $module[0] : $module;
-            $moduleDirectory = config('support.module.directory') . DIRECTORY_SEPARATOR . ucfirst($module);
-            if (!file_exists($moduleDirectory)) {
-                $this->error("The requested module '$moduleDirectory' does not exists!");
-                return;
-            }
-        }
-
-
-        $resources = !is_array($resources) ? [$resources] : $resources;
+        $resources = (array) $resources;
 
         foreach ($resources as $resource) {
 
             if (empty($newFields)) {
-                $this->info('Updating resource: ' . $resource);
-                $this->info('=================');
-
-                $this->call('reinforcement:resource:model', ['resources' => $resource, '--module' => $module, '--migration' => $migration]);
-                $this->call('reinforcement:resource:repository', ['resources' => $resource, '--module' => $module, '--migration' => $migration]);
-                // $this->call('reinforcement:resource:schema', ['resources' => $resource, '--module' => $module]);
-                $this->call('reinforcement:resource:validator', ['resources' => $resource, '--module' => $module, '--migration' => $migration]);
-                $this->call('reinforcement:resource:request', ['resources' => $resource, '--module' => $module, '--migration' => $migration]);
-                $this->call('reinforcement:resource:controller', ['resources' => $resource, '--module' => $module]);
-                $this->call('reinforcement:resource:route', ['resources' => $resource, '--module' => $module]);
-                $this->call('reinforcement:resource:seeder', ['resources' => $resource, '--module' => $module, '--migration' => $migration]);
-
-                if (empty($migration)) {
-                    $this->call('reinforcement:resource:migration', ['resources' => $resource, '--module' => $module]);
-                }
-                $this->info('');
-
-            } else {
                 $this->info('Creating resource: ' . $resource);
                 $this->info('=================');
 
-                $this->call('reinforcement:resource:model', ['resources' => $resource, '--module' => $module, '--new-fields' => $newFields]);
-                $this->call('reinforcement:resource:repository', ['resources' => $resource, '--module' => $module, '--new-fields' => $newFields]);
+                $this->call('reinforcement:model',
+                    [
+                        'resources'   => $resource,
+                        '--migration' => $migration,
+                    ]);
 
-                $this->call('reinforcement:resource:validator', ['resources' => $resource, '--module' => $module, '--new-fields' => $newFields]);
+                $this->call('reinforcement:repository',
+                    [
+                        'resources'   => $resource,
+                        '--migration' => $migration,
+                    ]);
 
-                $this->call('reinforcement:resource:request', ['resources' => $resource, '--module' => $module, '--new-fields' => $newFields]);
+                // $this->call('reinforcement:schema', ['resources' => $resource, '--module' => $module]);
 
-                $this->call('reinforcement:resource:migration', ['resources' => $resource, '--module' => $module, '--new-fields' => $newFields]);
-                $this->info('');
+                $this->call('reinforcement:request',
+                    [
+                        'resources'   => $resource,
+                        '--migration' => $migration,
+                    ]);
+
+                $this->call('reinforcement:validator',
+                    [
+                        'resources'   => $resource,
+                        '--migration' => $migration,
+                    ]);
+
+                $this->call('reinforcement:controller', ['resources' => $resource]);
+                $this->call('reinforcement:route', ['resources' => $resource]);
+
+                $this->call('reinforcement:seeder',
+                    [
+                        'resources'   => $resource,
+                        '--migration' => $migration,
+                    ]);
+
+                if (empty($migration)) {
+                    $this->call('reinforcement:migration',
+                        [
+                            'resources' => $resource,
+                            '--module'  => $module,
+                        ]);
+                }
+
+                $this->info('Done');
+
+            } else {
+                $this->info('Updating resource: ' . $resource);
+                $this->info('=================');
+
+                $this->call('reinforcement:model',
+                    [
+                        'resources'    => $resource,
+                        '--new-fields' => $newFields,
+                    ]);
+
+                $this->call('reinforcement:repository',
+                    [
+                        'resources'    => $resource,
+                        '--new-fields' => $newFields,
+                    ]);
+
+                $this->call('reinforcement:validator',
+                    [
+                        'resources'    => $resource,
+                        '--new-fields' => $newFields,
+                    ]);
+
+                $this->call('reinforcement:request',
+                    [
+                        'resources'    => $resource,
+                        '--new-fields' => $newFields,
+                    ]);
+
+                $this->call('reinforcement:migration',
+                    [
+                        'resources'    => $resource,
+                        '--new-fields' => $newFields,
+                    ]);
+
+                $this->info('Done');
 
             }
 

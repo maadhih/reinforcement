@@ -2,6 +2,8 @@
 
 namespace Reinforcement\Console\Commands;
 
+use Reinforcement\Support\Str;
+
 class MakeResourceValidator extends AbstractCommand
 {
 
@@ -10,7 +12,7 @@ class MakeResourceValidator extends AbstractCommand
      *
      * @var string
      */
-    protected $signature = 'reinforcement:resource:validator {resources*} {--module=*} {--migration=*} {--new-fields=*}';
+    protected $signature = 'reinforcement:validator {resources*} {--migration=*} {--new-fields=*}';
 
     /**
      * The console command description.
@@ -30,6 +32,10 @@ class MakeResourceValidator extends AbstractCommand
     {
         $this->namespace = $this->getAppNamespace();
         parent::__construct();
+        $ds = DIRECTORY_SEPARATOR;
+
+        $this->writeDirectory = app_path('Validators');
+        $this->stub = $this->stubPath . 'Standard' . $ds . 'Validator.stub';
     }
 
     /**
@@ -41,67 +47,43 @@ class MakeResourceValidator extends AbstractCommand
     {
         $ds = DIRECTORY_SEPARATOR;
         $resources = $this->argument('resources');
-        $resources = !is_array($resources) ? [$resources] : $resources;
-        $module = $this->option('module');
+        $resources = (array) $resources;
         $migration = $this->option('migration');
         $newFields = $this->option('new-fields');
-        $directory = app_path('Validators');
 
         $mappings = '';
         $validationRules = '';
+
         if ($migration) {
-            $fieldCollection = $this->getFieldCollection('\\'.$migration[0]);
-            $mappings = $fieldCollection->getFieldsMapped();
-            $validationRules = $fieldCollection->getFieldsMappedToValue('required');
-        }
-
-        if ($module) {
-            $module = is_array($module) ? $module[0] : $module;
-            $moduleDirectory = config('support.module.directory') . $ds . ucfirst($module);
-
-            $this->namespace = $this->getAppNamespace() . ucfirst($module);
-            $directory = config('support.module.directory') . $ds . ucfirst($module) . $ds . config('support.module.validators');
-
-            if (!file_exists($moduleDirectory)) {
-                $this->error("The requested module '$moduleDirectory' does not exists!");
-                return;
-            }
-
-            if(config('support.namespace')) {
-                $this->namespace = config('support.namespace');
-            }
+            $fieldCollection = $this->getFieldCollection($migration[0]);
+            $mappings = $fieldCollection->getFieldsString(3);
+            $validationRules = $fieldCollection->getFieldsMappedToValue('required', 3);
         }
 
         foreach ($resources as $resource) {
-            $filename = $directory . $ds . str_singular(ucfirst($resource)) . 'Validator.php';
+            // $filename = $directory . $ds . str_singular(ucfirst($resource)) . 'Validator.php';
             if ($newFields) {
                 return $this->addNewFields($newFields, $filename);
             }
-            $stub = file_get_contents($this->resourcesPath . $ds . 'Stubs' . $ds . (empty($module) ? 'Standard' : 'Modular') . $ds . 'Validator.stub');
-            $stub = str_replace([
-                            '{{namespace}}',
-                            '{{validators}}',
-                            '{{resource}}',
-                            '{{mappings}}',
-                            '{{validationRules}}',
-                        ],
-                        [
-                            $this->namespace,
-                            str_replace($ds, '\\', config('support.module.validators')),
-                            str_singular(ucfirst($resource)),
-                            $mappings,
-                            $validationRules,
-                        ],
-                        $stub);
 
-            if (!file_exists($directory)) {
-                mkdir($directory, 0777, true);
-            }
+            $validator = $this->makeValidator($this->namespace, $resource, $mappings, $validationRules);
 
-            file_put_contents($filename, $stub);
-            $this->info($filename . ' created!');
+            $this->writeFile(Str::singular(ucfirst($resource)) . 'Validator', $validator);
         }
     }
+
+    public function makeValidator($namespace, $resource, $mappings, $rules)
+    {
+        return $this->buildFromStub($this->stub,
+            [
+                'namespace' => $namespace,
+                'resource' =>  str_singular(ucfirst($resource)),
+                'mappings' => $mappings,
+                'validationRules' => $rules,
+            ]);
+    }
+
+
 
     protected function addNewFields($newFields, $filename)
     {

@@ -2,37 +2,21 @@
 
 namespace {{namespace}}Http\Requests;
 
-use App\Http\Requests\CoreRequest;
-use {{namespace}}Validators\{{resource}}Validator;
+use Reinforcement\Http\Request;
 
-class {{resource}}Request extends CoreRequest
+class {{resource}}Request extends Request
 {
+    protected $allowedIncludes = [
+{{relationsString}}
+    ];
 
-    protected function includeParameters()
-    {
-        return [
-            {{relationsString}}
-        ];
-    }
+    protected $allowedFilters = [
+        'query',
+{{fieldsString}}
+    ];
 
-    protected function sortFieldParameters()
-    {
-        return [
-            {{fieldsString}}
-        ];
-    }
-
-    public function filteringParameters()
-    {
-        return [
-            'query',
-            {{fieldsString}}
-        ];
-    }
-
-    public function validator()
-    {
-        return {{resource}}Validator::class;
-    }
+    protected $allowedSorts = [
+{{fieldsString}}
+    ];
 
 }

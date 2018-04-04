@@ -16,22 +16,29 @@ abstract class AbstractTableSeeder extends Seeder {
 
     public function run()
     {
-		$inst = new $this->className;
+		$instance = new $this->className;
+        $createdItems = collect();
 
         foreach ($this->data as $index => $record) {
             try {
-                $item = $inst::firstOrNew(array('id' => $record['id']));
+                $item = $instance::firstOrNew(['id' => $record['id']]);
 
                 foreach ($record as $key => $value) {
                     $item->$key = $value;
                 }
 
                 $item->save();
+                $createdItems->push($item);
 
             } catch(Illuminate\Database\QueryException $excp) {
                 dd($excp);
                 echo "Not working." . PHP_EOL;
             }
         }
+
+        if (method_exists($this, 'postCreate')) {
+            $this->postCreate($createdItems);
+        }
+
 	}
 }

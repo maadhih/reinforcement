@@ -3,23 +3,28 @@
 namespace {{namespace}}Repositories;
 
 use {{namespace}}Models\{{resource}};
-use {{namespace}}Repositories\CoreRepository;
+use Reinforcement\Repositories\Repository;
 
-class {{resource}}Repository extends CoreRepository
+class {{resource}}Repository extends Repository
 {
-	public function __construct({{resource}} $model)
-    {
-        parent::__construct($model);
-    }
+	protected $modelClass = {{resource}}::class;
 
-    public static function getFiltering()
+    public static function filteringMap()
     {
         return [
 
             'query' => [
-            	{{fieldsString}},
+{{fieldsString}},
             ],
-            {{fieldsMapped}}
+
+{{fieldsMapped}}
+        ];
+    }
+
+    public static function sortingMap()
+    {
+        return [
+            //sorting map here
         ];
     }
 }

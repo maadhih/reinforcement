@@ -2,6 +2,8 @@
 
 namespace Reinforcement\Console\Commands;
 
+use Reinforcement\Support\Str;
+
 class MakeResourceSeeder extends AbstractCommand
 {
 
@@ -10,7 +12,7 @@ class MakeResourceSeeder extends AbstractCommand
      *
      * @var string
      */
-    protected $signature = 'reinforcement:resource:seeder {resources*} {--module=*} {--migration=*}';
+    protected $signature = 'reinforcement:seeder {resources*} {--migration=*}';
 
     /**
      * The console command description.
@@ -30,6 +32,11 @@ class MakeResourceSeeder extends AbstractCommand
     {
         $this->namespace = $this->getAppNamespace();
         parent::__construct();
+
+        $ds = DIRECTORY_SEPARATOR;
+
+        $this->writeDirectory = base_path() .$ds. 'database' .$ds. 'seeds';
+        $this->stub = $this->stubPath . 'Standard' . $ds . 'Seeder.stub';
     }
 
     /**
@@ -41,51 +48,35 @@ class MakeResourceSeeder extends AbstractCommand
     {
         $ds = DIRECTORY_SEPARATOR;
         $resources = $this->argument('resources');
-        $resources = !is_array($resources) ? [$resources] : $resources;
-        $module = $this->option('module');
+        $resources = (array) $resources;
         $migration = $this->option('migration');
-        $directory = base_path() .$ds. 'database' .$ds. 'seeds';
 
         $this->namespace = rtrim($this->namespace, "\\");
 
         $attributes = '';
         if ($migration) {
-            $fieldCollection = $this->getFieldCollection('\\'.$migration[0]);
-            $attributes = $fieldCollection->getFieldsMappedToValue('value');
+            $fieldCollection = $this->getFieldCollection($migration[0]);
+            $attributes = $fieldCollection->getFieldsMappedToValue('value', 4);
         }
 
         foreach ($resources as $resource) {
 
             $stub = file_get_contents($this->resourcesPath . $ds . 'Stubs' . $ds . (empty($module) ? 'Standard' : 'Modular') . $ds . 'Seeder.stub');
-            $stub = str_replace(
-                    [
-                        '{{namespace}}',
-                        '{{resource}}',
-                        '{{resourcePlural}}',
-                        '{{resourceLower}}',
-                        '{{attributes}}',
-                    ],
-                    [
-                        $this->namespace,
-                        str_singular(ucfirst($resource)),
-                        str_plural(ucfirst($resource)),
-                        str_singular(strtolower($resource)),
-                        $attributes
-                    ],$stub);
+            $seeder = $this->makeSeeder($this->namespace, $resource, $attributes);
 
-            if (!file_exists($directory)) {
-                mkdir($directory, 0777, true);
-            }
-
-            $filename = $directory . $ds . str_plural(ucfirst($resource)) . 'TableSeeder.php';
-
-            if (file_exists($filename)) {
-                $this->info($filename . ' already exists!');
-                return;
-            }
-
-            file_put_contents($filename, $stub);
-            $this->info($filename . ' created!');
+            $this->writeFile(Str::plural(ucfirst($resource)) . 'TableSeeder', $seeder);
         }
+    }
+
+    public function makeSeeder($namespace, $resource, $attributes)
+    {
+        return $this->buildFromStub($this->stub,
+            [
+                'namespace' => $namespace,
+                'resource' => str_singular(ucfirst($resource)),
+                'resourcePlural' =>  str_plural(ucfirst($resource)),
+                'resourceLower' => str_singular(strtolower($resource)),
+                'attributes' => $attributes,
+            ]);
     }
 }

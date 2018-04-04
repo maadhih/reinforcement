@@ -45,7 +45,6 @@ class MakeResourceController extends AbstractCommand
     {
         $resources = (array) $this->argument('resources');
 
-
         foreach ($resources as $resource) {
 
             $controller = $this->makeController($this->namespace, $resource);

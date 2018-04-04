@@ -65,20 +65,20 @@ class AbstractCommand extends Command
         return str_replace($needles, array_values($replace), $stub);
     }
 
-    protected function writeFile($filename, $data)
+    protected function writeFile($filename, $data, $update = false)
     {
-        $filePath = $this->writeDirectory . DIRECTORY_SEPARATOR . $filename . '.php';
+        $filePath = $this->writeDirectory . DIRECTORY_SEPARATOR . rtrim($filename, '.php') . '.php';
         if (!file_exists($this->writeDirectory)) {
             mkdir($this->writeDirectory, 0777, true);
         }
 
-        if (file_exists($filePath)) {
+        if (file_exists($filePath) && !$update) {
             $this->info($filePath . ' already exists!');
-            return false;
+            // return false;
         }
 
         file_put_contents($filePath, $data);
-        $this->info($filePath . ' created!');
+        $this->info($filePath . ($update ? ' updated!' : ' created!'));
         return $filePath;
     }
 }

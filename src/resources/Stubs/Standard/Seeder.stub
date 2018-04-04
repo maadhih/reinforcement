@@ -1,6 +1,7 @@
 <?php
 
 use {{namespace}}\Models\{{resource}};
+use Reinforcement\Database\AbstractTableSeeder;
 
 class {{resourcePlural}}TableSeeder extends AbstractTableSeeder
 {
@@ -8,7 +9,7 @@ class {{resourcePlural}}TableSeeder extends AbstractTableSeeder
     protected $data = [
             [
 	            "id" => 1,
-               {{attributes}}
+{{attributes}}
             ]
         ];
 }

@@ -2,6 +2,8 @@
 
 namespace Reinforcement\Console\Commands;
 
+use Reinforcement\Support\Str;
+
 class MakeResourceRoute extends AbstractCommand
 {
 
@@ -10,7 +12,7 @@ class MakeResourceRoute extends AbstractCommand
      *
      * @var string
      */
-    protected $signature = 'reinforcement:resource:route {resources*} {--module=*}';
+    protected $signature = 'reinforcement:route {resources*}';
 
     /**
      * The console command description.
@@ -30,6 +32,10 @@ class MakeResourceRoute extends AbstractCommand
     {
         $this->namespace = $this->getAppNamespace();
         parent::__construct();
+        $ds = DIRECTORY_SEPARATOR;
+
+        $this->writeDirectory = base_path('routes');
+        $this->stub = $this->stubPath . 'Standard' . $ds . 'Route.stub';
     }
 
     /**
@@ -41,44 +47,31 @@ class MakeResourceRoute extends AbstractCommand
     {
         $ds = DIRECTORY_SEPARATOR;
         $resources = $this->argument('resources');
-        $resources = !is_array($resources) ? [$resources] : $resources;
-        $module = $this->option('module');
-        $routesFile = base_path('routes') . $ds . 'web.php';
-
-        if ($module) {
-            $module = is_array($module) ? $module[0] : $module;
-            $moduleDirectory = config('support.module.directory') . $ds . ucfirst($module);
-
-            $this->namespace = $this->getAppNamespace() . ucfirst($module);
-            $routesFile = config('support.module.directory') . $ds . ucfirst($module) . $ds . config('support.module.routes');
-
-            if (!file_exists($moduleDirectory)) {
-                $this->error("The requested module '$moduleDirectory' does not exists!");
-                return;
-            }
-
-            if(config('support.namespace')) {
-                $this->namespace = config('support.namespace');
-            }
-        }
+        $resources = (array) $resources;
+        $routesFile = $this->writeDirectory. $ds . 'web.php';
 
         foreach ($resources as $resource) {
-            $stub = file_get_contents($this->resourcesPath . $ds . 'Stubs' . $ds . (empty($module) ? 'Standard' : 'Modular') . $ds . 'Route.stub');
-            $stub = str_replace([
-                        '{{resource}}',                    '{{class}}'],
-                        [str_plural(strtolower($resource)),  str_plural(ucfirst($resource))],
-                        $stub);
+            $route = $this->makeRoute($resource);
 
             if (!file_exists($routesFile)) {
-                $this->error('Could not update routes file \'' . $routesFile . '\' as it does not exist!');
+                $this->error('Routes file \'' . $routesFile . '\' does not exist!');
                 return;
             }
 
-            $routes = file_get_contents($routesFile);
-            $stub = $routes ? $routes . "\n" . $stub : $stub;
 
-            file_put_contents($routesFile, $stub);
-            $this->info($routesFile . ' routes updated!');
+            $routes = file_get_contents($routesFile);
+            $routes = $routes ? $routes . "\n" . $route : $route;
+
+            $this->writeFile('web', $routes, true);
         }
+    }
+
+    public function makeRoute($resource)
+    {
+        return $this->buildFromStub($this->stub,
+            [
+                'resource' =>    Str::plural(Str::slug(Str::snake($resource))),
+                'controller' =>    Str::plural(ucfirst($resource)),
+            ]);
     }
 }

@@ -97,25 +97,25 @@ class FieldCollection extends Blueprint
     	return $this->arrayToFormattedString($this->relations);
     }
 
-    public function getRelationsStringSlug()
+    public function getRelationsStringSlug($indent = 0)
     {
         $foreignKeys =  array_map(function ($value)
         {
             return Str::slug(str_replace('_id', '', $value));
         }, $this->foreignKeys);
-        return $this->arrayToFormattedString($foreignKeys);
+        return $this->arrayToFormattedString($foreignKeys, $indent);
     }
 
-    public function getFieldsMapped()
+    public function getFieldsMapped($indent = 0)
     {
         $fields = array_combine($this->fields, $this->fields);
-        return $this->arrayAssocToFormattedString($fields);
+        return $this->arrayAssocToFormattedString($fields, $indent);
     }
 
-    public function getFieldsMappedToValue($mappingValue)
+    public function getFieldsMappedToValue($mappingValue, $indent = 0)
     {
     	$mapped = array_fill_keys($this->fields, $mappingValue);
-    	return $this->arrayAssocToFormattedString($mapped);
+    	return $this->arrayAssocToFormattedString($mapped, $indent);
     }
 
 
@@ -137,10 +137,10 @@ class FieldCollection extends Blueprint
         return implode(",\n", $array);
     }
 
-    public function arrayAssocToFormattedString($array) {
+    public function arrayAssocToFormattedString($array, $indent = 0) {
          $assoc = '';
         foreach ($array as $key => $value) {
-            $assoc .= "'".$key."' => '" .$value."',\n";
+            $assoc .= Str::indent($indent)."'".$key."' => '" .$value."',\n";
         }
 
         return $assoc;

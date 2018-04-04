@@ -3,21 +3,21 @@
 namespace {{namespace}}Validators;
 
 use Illuminate\Http\Request;
-use App\Validation\AbstractValidator;
+use Reinforcement\Validation\Validator;
 
-class {{resource}}Validator extends AbstractValidator {
+class {{resource}}Validator extends Validator {
 
-    public function rules(Request $request, array $params = array())
+    public function rules(Request $request, array $params = [])
     {
         return [
-        	{{validationRules}}
+{{validationRules}}
         ];
     }
 
     public function mappings()
     {
         return [
-        	{{mappings}}
+{{mappings}}
         ];
     }
 

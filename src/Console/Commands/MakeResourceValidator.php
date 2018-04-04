@@ -77,7 +77,7 @@ class MakeResourceValidator extends AbstractCommand
         return $this->buildFromStub($this->stub,
             [
                 'namespace' => $namespace,
-                'resource' =>  str_singular(ucfirst($resource)),
+                'resource' =>  Str::singular(ucfirst($resource)),
                 'mappings' => $mappings,
                 'validationRules' => $rules,
             ]);

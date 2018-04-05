@@ -85,8 +85,7 @@ class MakeResource extends AbstractCommand
                 if (empty($migration)) {
                     $this->call('reinforcement:migration',
                         [
-                            'resources' => $resource,
-                            '--module'  => $module,
+                            'resources' => $resource
                         ]);
                 }
 

@@ -10,7 +10,7 @@ class MakeResourceMigration extends AbstractCommand
      *
      * @var string
      */
-    protected $signature = 'reinforcement:resource:migration {resources*} {--module=*} {--new-fields=*}';
+    protected $signature = 'reinforcement:migration {resources*} {--module=*} {--new-fields=*}';
 
     /**
      * The console command description.

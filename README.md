@@ -1,7 +1,8 @@
 # Laravel 5.5+ Reinforcements
 
-This package includes a bunch of generators out of the box:
+This package includes artisan generators out of the box:
 
+- `reinforcement:migration`
 - `reinforcement:resource`
 - `reinforcement:controller`
 - `reinforcement:model`
@@ -9,8 +10,7 @@ This package includes a bunch of generators out of the box:
 - `reinforcement:request`
 - `reinforcement:route`
 - `reinforcement:validator`
-
-*More features are on their way*
+- `reinforcement:seeder`
 
 ## Usage
 

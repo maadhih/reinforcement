@@ -2,6 +2,7 @@
 
 namespace Reinforcement\Console\Commands;
 
+use Reinforcement\Database\FieldCollection;
 use Reinforcement\Support\Str;
 
 class MakeResourceRepository extends AbstractCommand
@@ -30,45 +31,40 @@ class MakeResourceRepository extends AbstractCommand
      */
     public function __construct()
     {
-        $ds = DIRECTORY_SEPARATOR;
-        $this->namespace = $this->getAppNamespace();
         parent::__construct();
+        $ds = DIRECTORY_SEPARATOR;
 
         $this->writeDirectory = app_path('Repositories');
         $this->stub = $this->stubPath . 'Standard' . $ds . 'Repository.stub';
     }
 
-    /**
-     * Execute the console command.
+     /**
+     * Return the generated data
      *
-     * @return mixed
+     * @param  string                   $resource
+     * @param  FieldCollection     $fieldCollection
+     * @return string
      */
-    public function handle()
+    public function generate(string $resource, FieldCollection $fieldCollection = null)
     {
-        $ds = DIRECTORY_SEPARATOR;
-        $resources = $this->argument('resources');
-        $resources = (array) $resources;
-        $migration = $this->option('migration');
-        $newFields = $this->option('new-fields');
+        $fieldsString = $fieldsMapped = '';
 
-        $fieldsString = '';
-        $fieldsMapped = '';
-        if ($migration) {
-            $fieldCollection = $this->getFieldCollection($migration[0]);
+        if ($fieldCollection) {
             $fieldsString = $fieldCollection->getFieldsString(4);
             $fieldsMapped = $fieldCollection->getFieldsMapped(3);
         }
 
-        foreach ($resources as $resource) {
-            // $filename = $directory . $ds . str_singular(ucfirst($resource)) . 'Repository.php';
-            if ($newFields) {
-                return $this->addNewFields($newFields, $filename);
-            }
+        return $this->makeRepository($this->namespace, $resource, $fieldsString, $fieldsMapped);
+    }
 
-            $repository = $this->makeRepository($this->namespace, $resource, $fieldsString, $fieldsMapped);
-
-            $this->writeFile(Str::singular(ucfirst($resource)) . 'Repository', $repository);
-        }
+    /**
+     * Filename to save generated data
+     * @param  string $resource
+     * @return string
+     */
+    public function getOutputFileName(string $resource)
+    {
+        return Str::singular(ucfirst($resource)) . 'Repository';
     }
 
     public function makeRepository($namespace, $resource, $fields, $fieldsMapped)

@@ -2,6 +2,9 @@
 
 namespace Reinforcement\Console\Commands;
 
+use Reinforcement\Database\FieldCollection;
+use Reinforcement\Support\Str;
+
 class MakeResourceModel extends AbstractCommand
 {
 
@@ -38,41 +41,38 @@ class MakeResourceModel extends AbstractCommand
     }
 
     /**
-     * Execute the console command.
+     * Return the generated data
      *
-     * @return mixed
+     * @param  string                   $resource
+     * @param  FieldCollection     $fieldCollection
+     * @return string
      */
-    public function handle()
+    public function generate(string $resource, FieldCollection $fieldCollection = null)
     {
-        $ds = DIRECTORY_SEPARATOR;
-        $resources = $this->argument('resources');
-        $resources = (array) $resources;
-        $migration = $this->option('migration');
-        $newFields = $this->option('new-fields');
+        $fillables = $relations = '';
 
-        $fillables = '';
-        $relations = '';
-        if ($migration) {
-            $fieldCollection = $this->getFieldCollection($migration[0]);
+        if ($fieldCollection) {
+
             $fillables = $fieldCollection->getFieldsString(2);
-
             $relations = $this->getRelationDefinitions($fieldCollection->getRelations());
-
         }
 
-        $this->namespace = rtrim($this->namespace, "\\");
+        // if ($newFields) {
+        //     return $this->addNewFields($newFields, $filename);
+        // }
+
+        return $this->makeModel($this->namespace, $resource, $fillables, $relations);
+    }
 
 
-        foreach ($resources as $resource) {
-            if ($newFields) {
-                return $this->addNewFields($newFields, $filename);
-            }
-
-            $model = $this->makeModel($this->namespace, $resource, $fillables, $relations);
-
-            $this->writeFile(str_singular(ucfirst($resource)), $model);
-
-        }
+    /**
+     * Filename to save generated data
+     * @param  string $resource
+     * @return string
+     */
+    public function getOutputFileName(string $resource)
+    {
+        return Str::singular(ucfirst($resource));
     }
 
     public function makeModel($namespace, $resource, $fillables = '', $relationMethods ='') {

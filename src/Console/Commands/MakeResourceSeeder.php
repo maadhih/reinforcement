@@ -2,6 +2,7 @@
 
 namespace Reinforcement\Console\Commands;
 
+use Reinforcement\Database\FieldCollection;
 use Reinforcement\Support\Str;
 
 class MakeResourceSeeder extends AbstractCommand
@@ -39,36 +40,38 @@ class MakeResourceSeeder extends AbstractCommand
         $this->stub = $this->stubPath . 'Standard' . $ds . 'Seeder.stub';
     }
 
-    /**
-     * Execute the console command.
+     /**
+     * Return the generated data
      *
-     * @return mixed
+     * @param  string                   $resource
+     * @param  FieldCollection     $fieldCollection
+     * @return string
      */
-    public function handle()
+    public function generate(string $resource, FieldCollection $fieldCollection = null)
     {
-        $ds = DIRECTORY_SEPARATOR;
-        $resources = $this->argument('resources');
-        $resources = (array) $resources;
-        $migration = $this->option('migration');
-
-        $this->namespace = rtrim($this->namespace, "\\");
-
         $attributes = '';
-        if ($migration) {
-            $fieldCollection = $this->getFieldCollection($migration[0]);
+
+        if ($fieldCollection) {
             $attributes = $fieldCollection->getFieldsMappedToValue('value', 4);
         }
 
-        foreach ($resources as $resource) {
+        $seeder = $this->makeSeeder($this->namespace, $resource, $attributes);
 
-            $stub = file_get_contents($this->resourcesPath . $ds . 'Stubs' . $ds . (empty($module) ? 'Standard' : 'Modular') . $ds . 'Seeder.stub');
-            $seeder = $this->makeSeeder($this->namespace, $resource, $attributes);
+        $seederName = $this->getOutputFileName($resource);
+        $this->updateDatabaseSeeder($seederName);
 
-            $seederName = Str::plural(ucfirst($resource)) . 'TableSeeder';
-            $this->writeFile($seederName, $seeder);
-            $this->updateDatabaseSeeder($seederName);
+        return $seeder;
+    }
 
-        }
+
+    /**
+     * Filename to save generated data
+     * @param  string $resource
+     * @return string
+     */
+    public function getOutputFileName(string $resource)
+    {
+        return Str::plural(ucfirst($resource)) . 'TableSeeder';
     }
 
     public function makeSeeder($namespace, $resource, $attributes)
@@ -86,10 +89,10 @@ class MakeResourceSeeder extends AbstractCommand
     public function updateDatabaseSeeder($seederName)
     {
         $databaseSeeder = file_get_contents($this->writeDirectory."/DatabaseSeeder.php");
-        $seederCall = "\n".Str::indent(2)."// \$this->call($seederName::class);";
+        $seederCall = "\n".Str::indent(2)."\$this->call($seederName::class);";
 
         $newfile = Str::insertAfterLast($databaseSeeder, $seederCall, ');');
-        // dd($newfile);
+
         file_put_contents($this->writeDirectory."/DatabaseSeeder.php", $newfile);
     }
 }

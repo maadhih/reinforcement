@@ -2,6 +2,7 @@
 
 namespace Reinforcement\Console\Commands;
 
+use Reinforcement\Database\FieldCollection;
 use Reinforcement\Support\Str;
 
 class MakeResourceRequest extends AbstractCommand
@@ -38,39 +39,33 @@ class MakeResourceRequest extends AbstractCommand
         $this->stub = $this->stubPath . 'Standard' . $ds . 'Request.stub';
     }
 
-    /**
-     * Execute the console command.
+     /**
+     * Return the generated data
      *
-     * @return mixed
+     * @param  string                   $resource
+     * @param  FieldCollection     $fieldCollection
+     * @return string
      */
-    public function handle()
+    public function generate(string $resource, FieldCollection $fieldCollection = null)
     {
-        $ds = DIRECTORY_SEPARATOR;
-        $resources = $this->argument('resources');
-        $resources = (array) $resources;
-        $migration = $this->option('migration');
-        $newFields = $this->option('new-fields');
+        $fieldsString = $relationsStringSlug = '';
 
-        $fieldsString = '';
-        $relationsStringSlug = '';
-
-        if ($migration) {
-
-            $fieldCollection = $this->getFieldCollection($migration[0]);
+        if ($fieldCollection) {
             $fieldsString = $fieldCollection->getFieldsString(2);
             $relationsStringSlug = $fieldCollection->getRelationsStringSlug(2);
         }
 
-        foreach ($resources as $resource) {
-            // $filename = $directory . $ds . str_singular(ucfirst($resource)) . 'Request.php';
-            if ($newFields) {
-                return $this->addNewFields($newFields, $filename);
-            }
+        return $this->makeRequest($this->namespace, $resource, $fieldsString, $relationsStringSlug);
+    }
 
-            $request = $this->makeRequest($this->namespace, $resource, $fieldsString, $relationsStringSlug);
-
-            $this->writeFile(Str::singular(ucfirst($resource)) . 'Request', $request);
-        }
+    /**
+     * Filename to save generated data
+     * @param  string $resource
+     * @return string
+     */
+    public function getOutputFileName(string $resource)
+    {
+        return Str::singular(ucfirst($resource)) . 'Request';
     }
 
     public function makeRequest($namespace, $resource, $fields, $relations)

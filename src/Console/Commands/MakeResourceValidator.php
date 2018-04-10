@@ -2,6 +2,7 @@
 
 namespace Reinforcement\Console\Commands;
 
+use Reinforcement\Database\FieldCollection;
 use Reinforcement\Support\Str;
 
 class MakeResourceValidator extends AbstractCommand
@@ -38,38 +39,33 @@ class MakeResourceValidator extends AbstractCommand
         $this->stub = $this->stubPath . 'Standard' . $ds . 'Validator.stub';
     }
 
-    /**
-     * Execute the console command.
+     /**
+     * Return the generated data
      *
-     * @return mixed
+     * @param  string                   $resource
+     * @param  FieldCollection     $fieldCollection
+     * @return string
      */
-    public function handle()
+    public function generate(string $resource, FieldCollection $fieldCollection = null)
     {
-        $ds = DIRECTORY_SEPARATOR;
-        $resources = $this->argument('resources');
-        $resources = (array) $resources;
-        $migration = $this->option('migration');
-        $newFields = $this->option('new-fields');
+        $mappings = $validationRules = '';
 
-        $mappings = '';
-        $validationRules = '';
-
-        if ($migration) {
-            $fieldCollection = $this->getFieldCollection($migration[0]);
+        if ($fieldCollection) {
             $mappings = $fieldCollection->getFieldsString(3);
             $validationRules = $fieldCollection->getFieldsMappedToValue('required', 3);
         }
 
-        foreach ($resources as $resource) {
-            // $filename = $directory . $ds . str_singular(ucfirst($resource)) . 'Validator.php';
-            if ($newFields) {
-                return $this->addNewFields($newFields, $filename);
-            }
+        return $this->makeValidator($this->namespace, $resource, $mappings, $validationRules);
+    }
 
-            $validator = $this->makeValidator($this->namespace, $resource, $mappings, $validationRules);
-
-            $this->writeFile(Str::singular(ucfirst($resource)) . 'Validator', $validator);
-        }
+    /**
+     * Filename to save generated data
+     * @param  string $resource
+     * @return string
+     */
+    public function getOutputFileName(string $resource)
+    {
+        return Str::singular(ucfirst($resource)) . 'Validator';
     }
 
     public function makeValidator($namespace, $resource, $mappings, $rules)

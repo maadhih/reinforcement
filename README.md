@@ -29,7 +29,6 @@ You're all set. Run `php artisan` from the console, and you'll see the new comma
 
 - [Creating full resource bundles](#creating-full-resource-bundle)
 - [Creating individual elements of resource](#creating-individual-elements-of-resource)
-- [Generating resources for modules](#generating-resources-for-modules)
 
 ### Creating full resource bundles
 
@@ -41,12 +40,14 @@ Notice the format that we use, when giving the command more than 1 resource to c
 
 This would create the whole bundle required for the reinforcement module to work. This bundle includes:
 
+- `Resource migration`
 - `Resource controller`
 - `Resource model`
 - `Resource repository`
 - `Resource request`
 - `Adding the Resource route to the routes file`
 - `Resource validator`
+- `Resource seeder`
 
 ### Creating individual elements of resource
 

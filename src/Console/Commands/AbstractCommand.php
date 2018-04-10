@@ -5,6 +5,7 @@ namespace Reinforcement\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Container\Container;
 use Reinforcement\Database\MigrationParser;
+use Reinforcement\Support\Str;
 use Stringy\Stringy;
 
 /**
@@ -12,21 +13,21 @@ use Stringy\Stringy;
 */
 class AbstractCommand extends Command
 {
-    protected $resourcesPath = '' ;
-    protected $stubPath = '' ;
-	protected $templatePath = '' ;
+    protected $resourcesPath = '';
+    protected $stubPath = '';
+    protected $templatePath = '';
 
-	protected $controllersPath = __DIR__ .'/../resources' ;
-	protected $requestsPath = __DIR__ .'/../resources' ;
-	protected $repositoriesPath = __DIR__ .'/../resources' ;
-	protected $modelsPath = __DIR__ .'/../resources' ;
+    protected $resources = [];
+    protected $fieldCollection;
+	protected $isUpdate = false;
+
 
     public function __construct()
     {
         parent::__construct();
 
         $ds = DIRECTORY_SEPARATOR;
-        $this->namespace = $this->getAppNamespace();
+        $this->namespace = rtrim($this->getAppNamespace(), "\\");
 
         $this->resourcesPath = __DIR__ ."$ds..$ds..$ds"."resources". $ds;
         $this->stubPath = $this->resourcesPath. "Stubs" .$ds;
@@ -38,10 +39,49 @@ class AbstractCommand extends Command
         return Container::getInstance()->getNamespace();
     }
 
-    public function getFieldCollection($migrationClassName)
+    public function handle()
     {
-    	$parser = new MigrationParser($migrationClassName, $this->laravel->databasePath().DIRECTORY_SEPARATOR.'migrations');
-        return $parser->getFieldCollection();
+        $this->resources = (array) $this->argument('resources');
+        // $newFields = $this->option('new-fields');
+
+        foreach ($this->resources as $resource) {
+            $fieldCollection = $this->getFieldCollection($resource);
+
+            $fileData = $this->generate($resource, $fieldCollection);
+
+            if (!empty($fileData)) {
+                $this->writeFile($this->getOutputFileName($resource), $fileData);
+            }
+        }
+    }
+
+    /**
+     * Get a FieldCollection instance for resource
+     *
+     * @param  string $resource
+     * @return \Reinforcement\Database\FieldCollection|boolean
+     */
+    public function getFieldCollection(string $resource)
+    {
+        if ($this->hasOption('migration')) {
+
+            $migrationClassName = '';
+            $migration = $this->hasOption('migration') ? $this->option('migration') : '';
+
+            if (empty($migration)) {
+                $migrationClassName = 'Create'. Str::plural(ucfirst($resource)) .'Table';
+
+            } else {
+                $migrationClassName = $migration[0];
+            }
+
+        	$parser = new MigrationParser($migrationClassName, $this->laravel->databasePath().DIRECTORY_SEPARATOR.'migrations');
+            if ($parser) {
+                return $parser->getFieldCollection();
+            }
+        }
+
+        return null;
     }
 
     public function insertAfter($string, $insert, $after)
@@ -65,20 +105,20 @@ class AbstractCommand extends Command
         return str_replace($needles, array_values($replace), $stub);
     }
 
-    protected function writeFile($filename, $data, $update = false)
+    protected function writeFile($filename, $data)
     {
         $filePath = $this->writeDirectory . DIRECTORY_SEPARATOR . rtrim($filename, '.php') . '.php';
         if (!file_exists($this->writeDirectory)) {
             mkdir($this->writeDirectory, 0777, true);
         }
 
-        if (file_exists($filePath) && !$update) {
+        if (file_exists($filePath) && !$this->isUpdate) {
             $this->info($filePath . ' already exists!');
             // return false;
         }
 
         file_put_contents($filePath, $data);
-        $this->info($filePath . ($update ? ' updated!' : ' created!'));
+        $this->info($filePath . ($this->isUpdate ? ' updated!' : ' created!'));
         return $filePath;
     }
 }

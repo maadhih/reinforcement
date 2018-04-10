@@ -36,21 +36,28 @@ class MakeResourceController extends AbstractCommand
         $this->stub = $this->stubPath . 'Standard' . $ds . 'Controller.stub';
     }
 
+
     /**
-     * Execute the console command.
+     * Return the generated data
      *
-     * @return mixed
+     * @param  string                   $resource
+     * @param  FieldCollection     $fieldCollection
+     * @return string
      */
-    public function handle()
+    public function generate(string $resource, FieldCollection $fieldCollection = null)
     {
-        $resources = (array) $this->argument('resources');
+        return $this->makeController($this->namespace, $resource);
+    }
 
-        foreach ($resources as $resource) {
 
-            $controller = $this->makeController($this->namespace, $resource);
-
-            $this->writeFile(Str::plural(ucfirst($resource)) . 'Controller', $controller);
-        }
+    /**
+     * Filename to save generated data
+     * @param  string $resource
+     * @return string
+     */
+    public function getOutputFileName($resource)
+    {
+        return Str::plural(ucfirst($resource)) . 'Controller';
     }
 
     public function makeController($namespace, $resource) {

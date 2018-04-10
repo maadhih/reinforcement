@@ -38,32 +38,37 @@ class MakeResourceRoute extends AbstractCommand
         $this->stub = $this->stubPath . 'Standard' . $ds . 'Route.stub';
     }
 
-    /**
-     * Execute the console command.
+     /**
+     * Return the generated data
      *
-     * @return mixed
+     * @param  string  $resource
+     * @return string
      */
-    public function handle()
+    public function generate(string $resource)
     {
-        $ds = DIRECTORY_SEPARATOR;
-        $resources = $this->argument('resources');
-        $resources = (array) $resources;
-        $routesFile = $this->writeDirectory. $ds . 'web.php';
+        $routesFile = $this->writeDirectory. DIRECTORY_SEPARATOR . 'web.php';
 
-        foreach ($resources as $resource) {
-            $route = $this->makeRoute($resource);
+        $route = $this->makeRoute($resource);
 
-            if (!file_exists($routesFile)) {
-                $this->error('Routes file \'' . $routesFile . '\' does not exist!');
-                return;
-            }
-
-
-            $routes = file_get_contents($routesFile);
-            $routes = $routes ? $routes . "\n" . $route : $route;
-
-            $this->writeFile('web', $routes, true);
+        if (!file_exists($routesFile)) {
+            $this->error('Routes file \'' . $routesFile . '\' does not exist!');
+            return null;
         }
+
+        $this->isUpdate = true;
+        $routes = file_get_contents($routesFile);
+
+        return $routes ? $routes . "\n" . $route : $route;
+    }
+
+    /**
+     * Filename to save generated data
+     * @param  string $resource
+     * @return string
+     */
+    public function getOutputFileName(string $resource)
+    {
+        return 'web';
     }
 
     public function makeRoute($resource)

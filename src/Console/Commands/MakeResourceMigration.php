@@ -2,6 +2,8 @@
 
 namespace Reinforcement\Console\Commands;
 
+use Reinforcement\Support\Str;
+
 class MakeResourceMigration extends AbstractCommand
 {
 
@@ -28,70 +30,57 @@ class MakeResourceMigration extends AbstractCommand
      */
     public function __construct()
     {
-        $this->namespace = $this->getAppNamespace();
         parent::__construct();
+        $ds = DIRECTORY_SEPARATOR;
+
+        $this->writeDirectory = base_path() . $ds . 'database' . $ds . 'migrations';
+        $this->stub           = $this->stubPath . 'Standard' . $ds . 'Migration.stub';
     }
 
+
     /**
-     * Execute the console command.
+     * Return the generated data
      *
-     * @return mixed
+     * @param  string                   $resource
+     * @param  FieldCollection     $fieldCollection
+     * @return string
      */
-    public function handle()
+    public function generate(string $resource)
     {
-        $ds = DIRECTORY_SEPARATOR;
-        $resources = $this->argument('resources');
-        $resources = !is_array($resources) ? [$resources] : $resources;
-        $module = $this->option('module');
-        $newFields = $this->option('new-fields');
-        $directory = base_path() .$ds. 'database' .$ds. 'migrations';
+        return $this->makeMigration($this->namespace, $resource);
+    }
 
-            $this->namespace = rtrim($this->namespace, "\\");
 
-        foreach ($resources as $resource) {
-            if ($newFields) {
-                return $this->addNewFields($newFields, $resource);
-            }
-            $stub = file_get_contents($this->resourcesPath . $ds . 'Stubs' . $ds . (empty($module) ? 'Standard' : 'Modular') . $ds . 'Migration.stub');
-            $stub = str_replace(
-                    [
-                        '{{namespace}}',
-                        '{{resource}}',
-                        '{{resourcePlural}}',
-                        '{{resourcePluralLower}}',
-                    ],
-                    [
-                        $this->namespace,
-                        str_singular(ucfirst($resource)),
-                        str_plural(ucfirst($resource)),
-                        str_plural(snake_case($resource)),
-                    ],$stub);
+    /**
+     * Filename to save generated data
+     * @param  string $resource
+     * @return string
+     */
+    public function getOutputFileName($resource)
+    {
+        return date('Y_m_d_His') . '_create_' . Str::plural(snake_case($resource)) . '_table';
+    }
 
-            if (!file_exists($directory)) {
-                mkdir($directory, 0777, true);
-            }
-
-            $filename = $directory . $ds .date('Y_m_d_His').'_create_'.str_plural(snake_case($resource)) . '_table.php';
-
-            if (file_exists($filename)) {
-                $this->info($filename . ' already exists!');
-                return;
-            }
-
-            file_put_contents($filename, $stub);
-            $this->info($filename . ' created!');
-        }
+    public function makeMigration($namespace, $resource)
+    {
+        return $this->buildFromStub($this->stub,
+            [
+                'namespace'           => $this->namespace,
+                'resource'            => str_singular(ucfirst($resource)),
+                'resourcePlural'      => str_plural(ucfirst($resource)),
+                'resourcePluralLower' => str_plural(snake_case($resource)),
+            ]);
     }
 
     protected function addNewFields($newFields, $resource)
     {
-        $migrationClass = new \ReflectionClass("Create".str_plural(ucfirst($resource))."Table");
-        $filename = $migrationClass->getFileName();
-        $file = file_get_contents($filename);
+        $migrationClass = new \ReflectionClass("Create" . str_plural(ucfirst($resource)) . "Table");
+        $filename       = $migrationClass->getFileName();
+        $file           = file_get_contents($filename);
 
         $newString = '';
         foreach ($newFields as $field) {
-            $newString = $newString ."\n\$table->string('$field');";
+            $newString = $newString . "\n\$table->string('$field');";
         }
 
         $newfile = $this->insertAfter($file, $newString, 'function (Blueprint $table) {');

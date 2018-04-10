@@ -4,6 +4,7 @@ namespace Reinforcement\Database;
 
 use Illuminate\Filesystem\Filesystem;
 use Reinforcement\Facades\Schema;
+use Reinforcement\Support\Str;
 
 
 class MigrationParser
@@ -14,7 +15,12 @@ class MigrationParser
     {
         $filesystem = app()->make(Filesystem::class);
 
-        $migrationFileName = $filesystem->glob($migrationsPath.'/*'.snake_case($migrationClassName).'.php')[0];
+        $fileList = $filesystem->glob($migrationsPath.'/*'.Str::snake($migrationClassName).'.php');
+        if (empty($fileList)){
+            return false;
+        }
+
+        $migrationFileName = $fileList[0];
 
         $filesystem->requireOnce($migrationFileName);
         $migrationClass = new $migrationClassName;

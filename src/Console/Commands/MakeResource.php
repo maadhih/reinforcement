@@ -47,40 +47,15 @@ class MakeResource extends AbstractCommand
                 $this->info('Creating resource: ' . $resource);
                 $this->info('=================');
 
-                $this->call('reinforcement:model',
-                    [
-                        'resources'   => $resource,
-                        '--migration' => $migration,
-                    ]);
-
-                $this->call('reinforcement:repository',
-                    [
-                        'resources'   => $resource,
-                        '--migration' => $migration,
-                    ]);
-
-                // $this->call('reinforcement:schema', ['resources' => $resource, '--module' => $module]);
-
-                $this->call('reinforcement:request',
-                    [
-                        'resources'   => $resource,
-                        '--migration' => $migration,
-                    ]);
-
-                $this->call('reinforcement:validator',
-                    [
-                        'resources'   => $resource,
-                        '--migration' => $migration,
-                    ]);
+                $options = [
+                    'resources'   => $resource,
+                    '--migration' => $migration,
+                ];
 
                 $this->call('reinforcement:controller', ['resources' => $resource]);
                 $this->call('reinforcement:route', ['resources' => $resource]);
 
-                $this->call('reinforcement:seeder',
-                    [
-                        'resources'   => $resource,
-                        '--migration' => $migration,
-                    ]);
+                $this->call('reinforcement:seeder', $options);
 
                 if (empty($migration)) {
                     $this->call('reinforcement:migration',
@@ -89,45 +64,28 @@ class MakeResource extends AbstractCommand
                         ]);
                 }
 
-                $this->info('Done');
-
             } else {
                 $this->info('Updating resource: ' . $resource);
                 $this->info('=================');
 
-                $this->call('reinforcement:model',
-                    [
-                        'resources'    => $resource,
-                        '--new-fields' => $newFields,
-                    ]);
+                $options = [
+                    'resources'    => $resource,
+                    '--new-fields' => $newFields,
+                ];
 
-                $this->call('reinforcement:repository',
-                    [
-                        'resources'    => $resource,
-                        '--new-fields' => $newFields,
-                    ]);
-
-                $this->call('reinforcement:validator',
-                    [
-                        'resources'    => $resource,
-                        '--new-fields' => $newFields,
-                    ]);
-
-                $this->call('reinforcement:request',
-                    [
-                        'resources'    => $resource,
-                        '--new-fields' => $newFields,
-                    ]);
-
-                $this->call('reinforcement:migration',
-                    [
-                        'resources'    => $resource,
-                        '--new-fields' => $newFields,
-                    ]);
-
-                $this->info('Done');
-
+                $this->call('reinforcement:migration', $options);
             }
+
+            $this->call('reinforcement:model', $options);
+
+            $this->call('reinforcement:repository', $options);
+
+            $this->call('reinforcement:validator', $options);
+
+            $this->call('reinforcement:request', $options);
+
+
+            $this->info('Done');
 
         }
 

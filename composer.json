@@ -1,8 +1,8 @@
 {
-    "name": "acnox/reinforcement",
+    "name": "maadhih/reinforcement",
     "description": "Extended laravel support for APIs",
     "keywords": ["extended", "API", "laravel", "support"],
-    "homepage": "https://gitlab.com/Acnox/Reinforcement",
+    "homepage": "https://gitlab.com/maadhih/reinforcement",
     "license": "MIT",
     "authors": [{
         "name": "Maadhih Hussain",
@@ -10,12 +10,12 @@
     }],
     "require": {
         "php": ">=5.6.0",
-        "illuminate/validation": "5.*",
-        "illuminate/support": "5.*",
-        "illuminate/container": "5.*",
-        "illuminate/config": "5.*",
-        "illuminate/database": "5.*",
-        "illuminate/console": "5.*",
+        "illuminate/validation": ">=5.5",
+        "illuminate/support": ">=5.5",
+        "illuminate/container": ">=5.5",
+        "illuminate/config": ">=5.5",
+        "illuminate/database": ">=5.5",
+        "illuminate/console": ">=5.5",
         "danielstjules/stringy": "~3.1.0"
     },
     "autoload": {
@@ -28,10 +28,7 @@
     },
     "extra": {
         "laravel": {
-            "providers": ["Reinforcement\\ReinforcementServiceProvider"],
-            "aliases": {
-                "Schema": "Reinforcement\\Database\\Schema\\Facades\\Schema"
-            }
+            "providers": ["Reinforcement\\ReinforcementServiceProvider"]
         }
     }
 }

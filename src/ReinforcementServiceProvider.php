@@ -20,7 +20,6 @@ class ReinforcementServiceProvider extends ServiceProvider
         \Reinforcement\Console\Commands\MakeResourceRepository::class,
         \Reinforcement\Console\Commands\MakeResourceRequest::class,
         \Reinforcement\Console\Commands\MakeResourceRoute::class,
-        // \Reinforcement\Console\Commands\MakeResourceSchema::class,
         \Reinforcement\Console\Commands\MakeResourceValidator::class,
         \Reinforcement\Console\Commands\MakeResourceModel::class,
         \Reinforcement\Console\Commands\MakeResourceSeeder::class,

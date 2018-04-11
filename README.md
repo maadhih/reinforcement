@@ -20,10 +20,16 @@ This package includes artisan generators out of the box:
 composer require maadhih/reinforcement --dev
 ```
 
+### Step 2: Laravel Package Discovery
+
+Run `php artisan package:discover` to make sure the package is discoverd by Laravel.
+
+
 
 ### Step 2: Run Artisan!
 
 You're all set. Run `php artisan` from the console, and you'll see the new commands in the `reinforcement:*` namespace section.
+*Note: The commands will only be available when `APP_ENV` is set to local
 
 ## Examples
 

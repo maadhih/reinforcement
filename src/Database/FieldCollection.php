@@ -63,7 +63,8 @@ class FieldCollection extends Blueprint
         if(!in_array($name, $this->ignore)){
             $this->fields[] = $name;
         }
-        return $this;
+
+        return parent::addColumn($type, $name, $parameters);
     }
 
     protected function addCommand($name, array $parameters = [])
@@ -74,7 +75,7 @@ class FieldCollection extends Blueprint
             $this->relations[] = Str::camel(str_replace('_id', '', $column));
         }
 
-        return $this;
+        return parent::addCommand($name, $parameters);
     }
 
 
@@ -162,6 +163,11 @@ class FieldCollection extends Blueprint
     }
 
     public function timestamps($precision = 0)
+    {
+        return $this;
+    }
+
+    public function unique($columns, $name = null, $algorithm = null)
     {
         return $this;
     }

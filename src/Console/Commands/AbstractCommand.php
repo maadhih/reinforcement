@@ -114,7 +114,7 @@ class AbstractCommand extends Command
 
         if (file_exists($filePath) && !$this->isUpdate) {
             $this->info($filePath . ' already exists!');
-            // return false;
+            return false;
         }
 
         file_put_contents($filePath, $data);

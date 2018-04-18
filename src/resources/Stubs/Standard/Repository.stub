@@ -2,7 +2,7 @@
 
 namespace {{namespace}}Repositories;
 
-use {{namespace}}Models\{{resource}};
+use {{namespace}}\Models\{{resource}};
 use Reinforcement\Repositories\Repository;
 
 class {{resource}}Repository extends Repository

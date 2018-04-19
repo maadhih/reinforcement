@@ -1,6 +1,6 @@
 <?php
 
-namespace {{namespace}}Validators;
+namespace {{namespace}}\Validators;
 
 use Illuminate\Http\Request;
 use Reinforcement\Validation\Validator;

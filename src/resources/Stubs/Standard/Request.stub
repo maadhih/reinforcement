@@ -1,6 +1,6 @@
 <?php
 
-namespace {{namespace}}Http\Requests;
+namespace {{namespace}}\Http\Requests;
 
 use Reinforcement\Http\Request;
 

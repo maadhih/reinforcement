@@ -1,6 +1,6 @@
 <?php
 
-namespace {{namespace}}Repositories;
+namespace {{namespace}}\Repositories;
 
 use {{namespace}}\Models\{{resource}};
 use Reinforcement\Repositories\Repository;

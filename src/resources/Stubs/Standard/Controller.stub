@@ -1,10 +1,10 @@
 <?php
 
-namespace {{namespace}}Http\Controllers;
+namespace {{namespace}}\Http\Controllers;
 
-use {{namespace}}Validators\{{resource}}Validator;
-use {{namespace}}Http\Requests\{{resource}}Request;
-use {{namespace}}Repositories\{{resource}}Repository;
+use {{namespace}}\Validators\{{resource}}Validator;
+use {{namespace}}\Http\Requests\{{resource}}Request;
+use {{namespace}}\Repositories\{{resource}}Repository;
 use Reinforcement\Http\Controllers\ResourceController;
 
 class {{className}}Controller extends ResourceController

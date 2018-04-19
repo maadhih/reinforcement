@@ -58,7 +58,7 @@ abstract class ResourceController extends BaseController
     public function update($id)
     {
         $parameters = $this->validateRequest(true);
-        $model = $this->repository->update($id, $parameters);
+        $model = $this->getRepository()->update($id, $parameters);
         return $this->modelResponse($model);
     }
 
@@ -70,7 +70,7 @@ abstract class ResourceController extends BaseController
      */
     public function destroy($id)
     {
-        $this->repository->delete($id);
+        $this->getRepository()->delete($id);
         return $this->deletedResponse();
     }
 

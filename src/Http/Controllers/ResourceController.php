@@ -7,12 +7,6 @@ abstract class ResourceController extends BaseController
     protected $repositoryClass;
     protected $validatorClass;
 
-
-    // public function __construct(Container $container, Repository $repository, JsonApiRequest $request)
-    // {
-    //     parent::__construct($container, $repository, $request);
-    // }
-
     /**
      * Display a listing of the resource.
      *
@@ -32,7 +26,7 @@ abstract class ResourceController extends BaseController
     {
         $parameters = $this->validateRequest();
         $model = $this->getRepository()->create($parameters);
-        return $model;
+        return response($model, 201);
     }
 
     /**
@@ -47,7 +41,6 @@ abstract class ResourceController extends BaseController
         $parameters = null;
         $model = $this->getRepository()->getItem($id, $parameters);
         return $model;
-        return $this->modelResponse($model);
     }
 
     /**
@@ -59,7 +52,7 @@ abstract class ResourceController extends BaseController
     {
         $parameters = $this->validateRequest(true);
         $model = $this->getRepository()->update($id, $parameters);
-        return $this->modelResponse($model);
+        return $model;
     }
 
     /**
@@ -71,7 +64,7 @@ abstract class ResourceController extends BaseController
     public function destroy($id)
     {
         $this->getRepository()->delete($id);
-        return $this->deletedResponse();
+        return response('', 204);
     }
 
 }

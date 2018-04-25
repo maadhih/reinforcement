@@ -48,11 +48,24 @@ trait FilteringTrait
             $table = $query->getTable();
         }
         return $query->where(function($query) use ($term, $columns, $operation, $table) {
-            foreach ($columns as $column) {
-                if (strpos($column, 'pivot.') === 0) {
-                    $column = $table .'.'. substr($column, 6);
-                }
-                $query = $this->filterByColumn($query, $column, $operation, $term, 'OR', strpos($column, 'fulltext.') === 0);
+            foreach ($columns as $key => $column) {
+              if (!is_array($column)) {
+                  if (strpos($column, 'pivot.') === 0) {
+                      $column = $table .'.'. substr($column, 6);
+                  }
+                  $query = $this->filterByColumn($query, $column, $operation, $term, 'OR', strpos($column, 'fulltext.') === 0);
+              } else {
+                  $query = $query->orWhereHas($key, function ($query) use ($column, $term, $key)
+                  {
+                  foreach ($column as $index => $relationField) {
+                    if ($index == 0) {
+                        $query->where($relationField, 'LIKE', $term);
+                    } else {
+                        $query->orWhere($relationField, 'LIKE', $term);
+                    }
+                  }
+                  });
+              }
             }
             return $query;
         });

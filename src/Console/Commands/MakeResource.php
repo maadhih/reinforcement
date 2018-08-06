@@ -57,12 +57,12 @@ class MakeResource extends AbstractCommand
 
                 $this->call('reinforcement:seeder', $options);
 
-                if (empty($migration)) {
-                    $this->call('reinforcement:migration',
-                        [
-                            'resources' => $resource
-                        ]);
-                }
+                // if (empty($migration)) {
+                //     $this->call('reinforcement:migration',
+                //         [
+                //             'resources' => $resource
+                //         ]);
+                // }
 
             } else {
                 $this->info('Updating resource: ' . $resource);

@@ -107,7 +107,7 @@ class AbstractCommand extends Command
 
     protected function writeFile($filename, $data)
     {
-        $filePath = $this->writeDirectory . DIRECTORY_SEPARATOR . rtrim($filename, '.php') . '.php';
+        $filePath = $this->writeDirectory . DIRECTORY_SEPARATOR . preg_replace('/\.php$/', '', $filename) . '.php';
         if (!file_exists($this->writeDirectory)) {
             mkdir($this->writeDirectory, 0777, true);
         }

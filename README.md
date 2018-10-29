@@ -1,4 +1,4 @@
-# Laravel 5.5+ Reinforcements
+# Laravel Reinforcements
 
 This package includes artisan generators out of the box:
 

@@ -3,6 +3,7 @@
 namespace Reinforcement\Support;
 
 use Illuminate\Support\Str as IlluminateStr;
+use Stringy\StaticStringy;
 use Stringy\Stringy;
 
 class Str extends IlluminateStr
@@ -24,5 +25,10 @@ class Str extends IlluminateStr
     public static function insertAfterLast($string, $insert, $after)
     {
         return static::insertAfter($string, $insert, $after, true);
+    }
+
+    public static function removeRight($string, $substr)
+    {
+        return StaticStringy::removeRight($string, $substr);
     }
 }

@@ -57,13 +57,13 @@ abstract class Repository
         }
     }
 
-/////
-    public function load(EncodingParametersInterface $parameters = null, Model $model)
-    {
-        $with = (!is_null($parameters) && $parameters->getIncludePaths()) ? $parameters->getIncludePaths() : array();
-        $model->load($with);
-        return $model;
-    }
+// /////
+//     public function load(EncodingParametersInterface $parameters = null, Model $model)
+//     {
+//         $with = (!is_null($parameters) && $parameters->getIncludePaths()) ? $parameters->getIncludePaths() : array();
+//         $model->load($with);
+//         return $model;
+//     }
 
     protected function getFilteringColumns(array $filtering = array())
     {
@@ -282,10 +282,10 @@ abstract class Repository
         throw new JsonApiException($errors, $status);
     }
 
-    public function setRelation($relation)
+    public function setRelation($relation, $id = null)
     {
         $this->relation = $relation;
-        return $this;
+        return $id ? $this->setResource($id) : $this;
     }
 
     public function setResource($resourceId)

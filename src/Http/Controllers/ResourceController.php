@@ -12,20 +12,18 @@ abstract class ResourceController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($id = null )
     {
-        $paginator = $this->getRepository()->getPaginatedCollection($this->request->getParameters());
-        return $paginator;
+        return $this->getRepository($id)->getPaginatedCollection($this->request->getParameters());
     }
 
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store()
+    public function store($id = null)
     {
-        $parameters = $this->validateRequest();
-        $model = $this->getRepository()->create($parameters);
+        $model = $this->getRepository($id)->create($this->validateRequest());
         return response($model, 201);
     }
 
@@ -35,35 +33,53 @@ abstract class ResourceController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id, $relationId = null)
     {
-        // $parameters = $this->request->getParameters();
-        $parameters = null;
-        $model = $this->getRepository()->getItem($id, $parameters);
+        $resourceId = null;
+
+        if ($relationId) {
+            $resourceId = $id;
+            $id = $relationId;
+        }
+
+        $model = $this->getRepository($resourceId)->getItem($id, $this->request->getParameters());
         return $model;
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified resource in database.
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update($id)
+    public function update($id, $relationId = null)
     {
-        $parameters = $this->validateRequest(true);
-        $model = $this->getRepository()->update($id, $parameters);
+        $resourceId = null;
+
+        if ($relationId) {
+            $resourceId = $id;
+            $id = $relationId;
+        }
+
+        $model = $this->getRepository($resourceId)->update($id, $this->validateRequest(true));
         return $model;
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified resource from database.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($id, $relationId = null)
     {
-        $this->getRepository()->delete($id);
+        $resourceId = null;
+
+        if ($relationId) {
+            $resourceId = $id;
+            $id = $relationId;
+        }
+
+        $this->getRepository($resourceId)->delete($id);
         return response('', 204);
     }
 

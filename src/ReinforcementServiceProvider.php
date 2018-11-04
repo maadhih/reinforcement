@@ -2,9 +2,12 @@
 
 namespace Reinforcement;
 
-use Reinforcement\Http\Request;
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Http\Request as IlluminateRequest;
+use Illuminate\Support\ServiceProvider;
+use Reinforcement\Acl\Acl;
+use Reinforcement\Acl\Commands\PermissionSync;
+use Reinforcement\Acl\Models\UserInterface;
+use Reinforcement\Http\Request;
 
 
 class ReinforcementServiceProvider extends ServiceProvider
@@ -14,6 +17,7 @@ class ReinforcementServiceProvider extends ServiceProvider
     private $packagePath = 'Reinforcement\Console\Commands\\';
 
     protected $commands = [
+        \Reinforcement\Console\Commands\MakeAcl::class,
         \Reinforcement\Console\Commands\MakeResource::class,
         \Reinforcement\Console\Commands\MakeResourceMigration::class,
         \Reinforcement\Console\Commands\MakeResourceController::class,
@@ -33,6 +37,10 @@ class ReinforcementServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->configureRequests();
+
+        if (\Config::has('acl')) {
+            Acl::routes();
+        }
     }
 
     /**
@@ -44,6 +52,10 @@ class ReinforcementServiceProvider extends ServiceProvider
     {
         if ($this->app->isLocal()) {
             $this->commands($this->commands);
+        }
+
+        if (\Config::has('acl')) {
+            $this->configureACL();
         }
     }
 
@@ -68,5 +80,14 @@ class ReinforcementServiceProvider extends ServiceProvider
             // $request->setQueryParameters($this->getQueryParameters());
             // $request->setSchemaContainer($this->getSchemaContainer());
         });
+    }
+
+    protected function configureACL()
+    {
+        $this->commands([
+            PermissionSync::class
+        ]);
+
+        $this->app->bind(UserInterface::class, \Config::get('acl.user'));
     }
 }

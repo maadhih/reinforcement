@@ -10,13 +10,16 @@ use Reinforcement\Repository\Repository;
 */
 class PermissionRepository extends Repository
 {
-    public function __construct(Permission $model)
-    {
-        parent::__construct($model);
-    }
+    protected $modelClass = Permission::class;
 
-    public static function getFiltering()
+    public static function filteringMap()
     {
-        return [];
+        return [
+
+            'query' => [
+                'name',
+                'slug'
+            ],
+        ];
     }
 }

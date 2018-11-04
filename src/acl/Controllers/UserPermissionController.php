@@ -2,25 +2,14 @@
 
 namespace Reinforcement\Acl\Controllers;
 
+use Reinforcement\Http\Controllers\ResourceController;
 use Reinforcement\Acl\Repositories\UserRepository;
 use Reinforcement\Acl\Requests\UserPermissionRequest;
-use Reinforcement\Acl\Transformer\PermissionTransformer;
-use Reinforcement\Http\Controllers\Controller;
 
-class UserPermissionController extends Controller
+class UserPermissionController extends ResourceController
 {
-    public function __construct(UserRepository $repository)
-    {
-        parent::__construct($repository);
-    }
-
-    public function index(UserPermissionRequest $request, PermissionTransformer $transformer, $userId)
-    {
-        return $this->getPaginateResponse($request, $transformer, 'permissions', $userId);
-    }
-
-    public function show(UserPermissionRequest $request, PermissionTransformer $transformer, $userId, $roleId)
-    {
-        return $this->getModelResponse($userId, $request, $transformer, 'permissions', $roleId);
-    }
+    protected $repositoryClass = UserRepository::class;
+    protected $requestClass = UserPermissionRequest::class;
+    protected $validatorClass = UserPermissionValidator::class;
+    protected $relation = 'permissions';
 }

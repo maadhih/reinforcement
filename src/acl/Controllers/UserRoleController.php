@@ -2,25 +2,34 @@
 
 namespace Reinforcement\Acl\Controllers;
 
+use Reinforcement\Http\Controllers\ResourceController;
 use Reinforcement\Acl\Requests\UserRoleRequest;
-use Reinforcement\Acl\Transformer\RoleTransformer;
 use Reinforcement\Acl\Repositories\UserRepository;
-use Reinforcement\Http\Controllers\Controller;
 
-class UserRoleController extends Controller
+class UserRoleController extends ResourceController
 {
-    public function __construct(UserRepository $repository)
+    protected $repositoryClass = UserRepository::class;
+    protected $requestClass = UserRoleRequest::class;
+    protected $validatorClass = UserRoleValidator::class;
+    protected $relation = 'roles';
+
+    public function attachRole($id)
     {
-        parent::__construct($repository);
+        $roleId = $this->validateRequest()['role_id'];
+
+        $user = $this->getRepository()->getItem($id);
+        $role = $this->getRepository($id, 'roles')->getItem($roleId);
+
+        $this->getRepository()->attachRoleWithPermissions($user, $role);
+        return response($role, 201);
     }
 
-    public function index(UserRoleRequest $request, RoleTransformer $transformer, $userId)
+    public function detachRole($id, $roleId)
     {
-        return $this->getPaginateResponse($request, $transformer, 'roles', $userId);
-    }
+        $user = $this->getRepository()->getItem($id);
+        $role = $this->getRepository($id, 'roles')->getItem($roleId);
 
-    public function show(UserRoleRequest $request, RoleTransformer $transformer, $userId, $roleId)
-    {
-        return $this->getModelResponse($userId, $request, $transformer, 'roles', $roleId);
+        $this->getRepository()->detachRoleWithPermissions($user, $role);
+        return response('', 204);
     }
 }

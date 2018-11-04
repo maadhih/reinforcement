@@ -4,9 +4,6 @@ use Reinforcement\Http\Controllers\BaseController;
 
 abstract class ResourceController extends BaseController
 {
-    protected $repositoryClass;
-    protected $validatorClass;
-
     /**
      * Display a listing of the resource.
      *

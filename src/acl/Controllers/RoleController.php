@@ -2,26 +2,15 @@
 
 namespace Reinforcement\Acl\Controllers;
 
+use App\Validators\RoleValidator;
 use Reinforcement\Acl\Requests\RoleRequest;
+use Reinforcement\Http\Controllers\ResourceController;
 use Reinforcement\Acl\Repositories\RoleRepository;
-use Reinforcement\Acl\Transformer\RoleTransformer;
-use Reinforcement\Http\Controllers\Controller;
 
-class RoleController extends Controller
+class RoleController extends ResourceController
 {
-    public function __construct(RoleRepository $repository)
-    {
-        parent::__construct($repository);
-    }
-
-    public function index(RoleRequest $request, RoleTransformer $transformer)
-    {
-        return $this->getPaginateResponse($request, $transformer);
-    }
-
-    public function show(RoleRequest $request, RoleTransformer $transformer, $id)
-    {
-        return $this->getModelResponse($id, $request, $transformer);
-    }
+    protected $repositoryClass = RoleRepository::class;
+    protected $requestClass = RoleRequest::class;
+    protected $validatorClass = RoleValidator::class;
 
 }

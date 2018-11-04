@@ -71,7 +71,7 @@ abstract class Repository
         //
 
         if ($this->relation) {
-            $method = 'get' . ucfirst($this->relation) . 'Filtering';
+            $method = $this->relation . 'FilteringMap';
             $availableFilterings = $this->$method();
         } else {
             $availableFilterings =  (method_exists($this, 'filteringMap') && is_array($this->filteringMap())) ? $this->filteringMap() : [];
@@ -277,15 +277,22 @@ abstract class Repository
         return !empty($parameters['columns']) ? $parameters['columns']: ['*'];
     }
 
-    protected function throwException(ErrorCollection $errors, $status = Response::HTTP_BAD_REQUEST)
-    {
-        throw new JsonApiException($errors, $status);
-    }
+    // protected function throwException(ErrorCollection $errors, $status = Response::HTTP_BAD_REQUEST)
+    // {
+    //     throw new JsonApiException($errors, $status);
+    // }
 
     public function setRelation($relation, $id = null)
     {
         $this->relation = $relation;
         return $id ? $this->setResource($id) : $this;
+    }
+
+    public function unsetRelation()
+    {
+        $this->relation = null;
+        $this->model = null;
+        return $this;
     }
 
     public function setResource($resourceId)

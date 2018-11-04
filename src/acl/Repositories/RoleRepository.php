@@ -10,13 +10,25 @@ use Reinforcement\Repository\Repository;
 */
 class RoleRepository extends Repository
 {
-    public function __construct(Role $model)
+    protected $modelClass = Role::class;
+
+    public static function filteringMap()
     {
-        parent::__construct($model);
+        return [
+            'query' => [
+                'name',
+                'slug'
+            ],
+        ];
     }
 
-    public static function getFiltering()
+    public static function permissionsFilteringMap()
     {
-        return [];
+        return [
+            'query' => [
+                'name',
+                'slug'
+            ],
+        ];
     }
 }

@@ -2,17 +2,20 @@
 
 namespace Reinforcement\Acl\Requests;
 
+use Reinforcement\Http\Request;
+
 class UserRoleRequest extends Request
 {
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
-    public function rules()
-    {
-        return [
-            //
-        ];
-    }
+    protected $allowedIncludes = [
+        'permissions'
+    ];
+
+    protected $allowedFilters = [
+        'query'
+    ];
+
+    protected $allowedSorts = [
+        'name',
+        'slug',
+    ];
 }

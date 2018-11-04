@@ -25,23 +25,16 @@ class RouteRegistrar
     }
 
     /**
-     * Register routes for transient tokens, clients, and personal access tokens.
+     * Register routes for ACL management.
      *
      * @return void
      */
     public function all()
     {
-        $this->z();
-    }
-
-    /**
-     * Register the routes needed for authorization.
-     *
-     * @return void
-     */
-    public function z()
-    {
         $this->router->group(['middleware' => ['web'], 'prefix' => 'api'], function ($router) {
+            $router->patch('users/{userId}/roles/attach', 'UserRoleController@attach')->name('users.roles.attach');
+            $router->patch('users/{userId}/roles/{roleId}/detach', 'UserRoleController@detach')->name('users.roles.detach');
+
             $router->resource('users', 'UserController');
             $router->resource('roles', 'RoleController');
             $router->resource('permissions', 'PermissionController');
@@ -51,4 +44,5 @@ class RouteRegistrar
             $router->resource('roles.permissions', 'RolePermissionController');
         });
     }
+
 }

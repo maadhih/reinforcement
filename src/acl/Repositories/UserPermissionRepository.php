@@ -10,13 +10,5 @@ use Reinforcement\Repository\Repository;
 */
 class UserPermissionRepository extends Repository
 {
-    public function __construct(UserPermission $model)
-    {
-        parent::__construct($model);
-    }
-
-    public static function getFiltering()
-    {
-        return [];
-    }
+    protected $modelClass = UserPermission::class;
 }

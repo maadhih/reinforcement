@@ -3,7 +3,7 @@
 namespace Reinforcement\Acl\Repositories;
 
 use Reinforcement\Acl\Models\Role;
-use Reinforcement\Repository\Repository;
+use Reinforcement\Repositories\Repository;
 
 /**
 * Role repository

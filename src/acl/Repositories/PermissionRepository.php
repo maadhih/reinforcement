@@ -3,7 +3,7 @@
 namespace Reinforcement\Acl\Repositories;
 
 use Reinforcement\Acl\Models\Permission;
-use Reinforcement\Repository\Repository;
+use Reinforcement\Repositories\Repository;
 
 /**
 * Permission repository

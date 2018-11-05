@@ -3,7 +3,7 @@
 namespace Reinforcement\Acl\Repositories;
 
 use Reinforcement\Acl\Models\User;
-use Reinforcement\Repository\Repository;
+use Reinforcement\Repositories\Repository;
 use Reinforcement\Acl\Repositories\UserRepositoryTrait;
 
 /**

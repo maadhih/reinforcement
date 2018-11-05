@@ -49,8 +49,11 @@ class MakeAcl extends Command
         $files = scandir($sourceDir);
 
         foreach ($files as $file) {
-            if ($file != "." && $file != "..")
-                copy("$sourceDir/$file", "$destinationDir/$file");
+            if ($file != "." && $file != "..") {
+                if (!file_exists("$destinationDir/$file")) {
+                    copy("$sourceDir/$file", "$destinationDir/$file");
+                }
+            }
         }
     }
 }

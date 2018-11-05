@@ -9,7 +9,7 @@ use Reinforcement\Support\Str;
 
 class MigrationParser
 {
-	protected $fieldCollection;
+    protected $fieldCollection;
 
     public function __construct($migrationClassName, $migrationsPath)
     {
@@ -25,6 +25,13 @@ class MigrationParser
         $filesystem->requireOnce($migrationFileName);
         $migrationClass = new $migrationClassName;
         $fieldCollection = new FieldCollection;
+
+        $fileString = file_get_contents($migrationFileName);
+
+        if (!Str::contains($fileString, Schema::class)) {
+            throw new \Exception("Migration [$migrationFileName] does not use ". Schema::class, 1);
+
+        }
 
         Schema::setBlueprintResolver($fieldCollection);
         $migrationClass->up();

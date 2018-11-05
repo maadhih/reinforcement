@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Validators;
+namespace Reinforcement\Acl\Validators;
 
 use Illuminate\Http\Request;
 use Reinforcement\Validation\Validator;

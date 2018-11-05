@@ -2,8 +2,9 @@
 
 namespace Reinforcement\Acl\Controllers;
 
-use Reinforcement\Acl\Requests\RolePermissionRequest;
 use Reinforcement\Acl\Repositories\RoleRepository;
+use Reinforcement\Acl\Requests\RolePermissionRequest;
+use Reinforcement\Acl\Validators\RolePermissionValidator;
 use Reinforcement\Http\Controllers\ResourceController;
 
 class RolePermissionController extends ResourceController

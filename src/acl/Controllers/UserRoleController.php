@@ -2,9 +2,10 @@
 
 namespace Reinforcement\Acl\Controllers;
 
-use Reinforcement\Http\Controllers\ResourceController;
-use Reinforcement\Acl\Requests\UserRoleRequest;
 use Reinforcement\Acl\Repositories\UserRepository;
+use Reinforcement\Acl\Requests\UserRoleRequest;
+use Reinforcement\Acl\Validators\UserRoleValidator;
+use Reinforcement\Http\Controllers\ResourceController;
 
 class UserRoleController extends ResourceController
 {

@@ -2,9 +2,10 @@
 
 namespace Reinforcement\Acl\Controllers;
 
-use Reinforcement\Http\Controllers\ResourceController;
 use Reinforcement\Acl\Repositories\UserRepository;
 use Reinforcement\Acl\Requests\UserPermissionRequest;
+use Reinforcement\Acl\Validators\UserPermissionValidator;
+use Reinforcement\Http\Controllers\ResourceController;
 
 class UserPermissionController extends ResourceController
 {

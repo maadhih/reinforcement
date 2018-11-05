@@ -18,6 +18,8 @@ class RoleValidator extends Validator {
     public function mappings()
     {
         return [
+            'name',
+            'slug',
         ];
     }
 

@@ -17,6 +17,7 @@ class UserRoleValidator extends Validator {
     public function mappings()
     {
         return [
+            'role_id'
         ];
     }
 

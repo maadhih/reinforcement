@@ -17,6 +17,7 @@ class UserPermissionValidator extends Validator {
     public function mappings()
     {
         return [
+            'permission_id'
         ];
     }
 

@@ -2,7 +2,7 @@
 
 namespace Reinforcement\Acl\Models;
 
-use Reinforcement\Contracts\Database\ModelInterface;
+use Reinforcement\Database\Eloquent\ModelInterface;
 
 interface UserInterface extends ModelInterface
 {

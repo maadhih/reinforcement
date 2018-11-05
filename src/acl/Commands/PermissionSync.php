@@ -61,7 +61,7 @@ class PermissionSync extends Command
             try {
                 $controller = $route->getController();
             } catch (\Exception $e) {
-                dump($e->getMessage() . " for route " . trim($name));
+                $this->error("Skipping: Unable to resolve controller for route [{$route->uri()}]");
                 // dd($e->getMessage());
                 continue;
             }
@@ -76,8 +76,8 @@ class PermissionSync extends Command
             $module = (count($matches) == 5 ? $matches[1] : $matches[0]);
             $resources[$resourceName]['module'] = $module;
             if (empty($name)) {
-                $this->error("The route [{$route->uri()}] does not have a name, route names are necessary for the permission.");
-                exit;
+                $this->warn("Skipping: route [{$route->uri()}] does not have a name, route names are necessary for the permission.");
+                continue;
             }
             if ($resourceName && !isset($resources[$resourceName])) {
                 $resources[$resourceName]['defaults'] = array();

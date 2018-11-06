@@ -2,8 +2,9 @@
 
 namespace Reinforcement\Database\Eloquent;
 
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model AS EloquentModel;
+use Reinforcement\Support\Str;
+use Stringy\StaticStringy;
 
 
 /**
@@ -12,6 +13,8 @@ use Illuminate\Database\Eloquent\Model AS EloquentModel;
 abstract class Model extends EloquentModel implements ModelInterface
 {
     protected $generated = [];
+
+    protected $appends = ['type'];
 
     public static function mappings() {
         return [];
@@ -52,6 +55,11 @@ abstract class Model extends EloquentModel implements ModelInterface
         }
 
         return parent::__call($method, $parameters);
+    }
+
+    public function getTypeAttribute()
+    {
+        return Str::camel(Str::afterLast(static::class,'\\'));
     }
 
 

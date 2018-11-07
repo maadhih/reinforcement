@@ -5,40 +5,83 @@ namespace Reinforcement\Database;
 use Illuminate\Database\Seeder;
 
 abstract class AbstractTableSeeder extends Seeder {
-	protected $data;
-	protected $className;
+    protected $data;
+    protected $className;
+    protected $update = true;
 
     public function __construct()
     {
-        if (method_exists($this, 'getData'))
-            $this->data = $this->getData();
+        $this->modelInstance = new $this->className;
     }
 
     public function run()
     {
-		$instance = new $this->className;
+
+        $createdItems = $this->update ?  $this->updateSeed() : $this->freshSeed();
+
+        $this->runPostCreateIfExist($createdItems);
+
+    }
+
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    public function freshSeed()
+    {
+        if ($this->isTableEmpty()) {
+            $this->modelInstance::insert($this->getData());
+        }
+        return null;
+    }
+
+    public function isTableEmpty()
+    {
+        return (bool) !$this->modelInstance::first();
+    }
+
+    public function setTimeStamps($data)
+    {
+        if (is_array_assoc($data)) {
+            $data['created_at'] = date('Y-m-d H:i:s');
+            $data['updated_at'] = date('Y-m-d H:i:s');
+
+            return $data;
+        }
+
+        return array_map(function($item) {
+            return $this->setTimeStamps($item);
+
+        }, $data);
+    }
+
+
+    public function updateSeed()
+    {
         $createdItems = collect();
 
-        foreach ($this->data as $index => $record) {
-            try {
-                $item = $instance::firstOrNew(['id' => $record['id']]);
+        foreach ($this->getData() as $index => $record) {
+            $item = $this->modelInstance::firstOrNew(['id' => $record['id']]);
 
-                foreach ($record as $key => $value) {
-                    $item->$key = $value;
-                }
-
-                $item->save();
-                $createdItems->push($item);
-
-            } catch(Illuminate\Database\QueryException $excp) {
-                dd($excp);
-                echo "Not working." . PHP_EOL;
+            foreach ($record as $key => $value) {
+                $item->$key = $value;
             }
+
+            $item->save();
+            $createdItems->push($item);
         }
 
-        if (method_exists($this, 'postCreate')) {
-            $this->postCreate($createdItems);
+        return $createdItems;
+    }
+
+
+    public function runPostCreateIfExist($created)
+    {
+        if (!method_exists($this, 'postCreate')) {
+            return false;
         }
 
-	}
+        $this->postCreate($createdItems);
+    }
 }

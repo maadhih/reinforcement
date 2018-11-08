@@ -76,7 +76,7 @@ abstract class AbstractTableSeeder extends Seeder {
     }
 
 
-    public function runPostCreateIfExist($created)
+    public function runPostCreateIfExist($createdItems)
     {
         if (!method_exists($this, 'postCreate')) {
             return false;

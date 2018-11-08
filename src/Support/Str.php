@@ -31,4 +31,9 @@ class Str extends IlluminateStr
     {
         return StaticStringy::removeRight($string, $substr);
     }
+
+    public static function afterLast($string, $after)
+    {
+        return StaticStringy::substr($string, StaticStringy::indexOfLast($string, $after)+strlen($after));
+    }
 }

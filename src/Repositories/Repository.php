@@ -200,7 +200,7 @@ abstract class Repository
             return $model;
         }
 
-        $relation = $this->model->{$relation}();
+        $relation = $this->getModel()->{$relation}();
         $model = $relation->find($id);
         if (method_exists($relation, 'withPivot')) {
             $model->pivot->fill($data);
@@ -226,7 +226,7 @@ abstract class Repository
             return $model->delete();
         }
 
-        $model = $this->model->{$relation}();
+        $model = $this->getModel()->{$relation}();
         if (method_exists($model, 'withPivot')) {
             return $model->detach($id);
         } else {
@@ -298,13 +298,13 @@ abstract class Repository
     public function setResource($resourceId)
     {
         $this->resourceId = $resourceId;
-        $this->model = $this->model->newQuery()->findOrFail($resourceId);
+        $this->model = $this->getModel()->newQuery()->findOrFail($resourceId);
         return $this;
     }
 
     public function findBy(array $conditions, array $with = array())
     {
-        return $this->model->with($with)->where($conditions)->firstOrFail();
+        return $this->getModel()->with($with)->where($conditions)->firstOrFail();
     }
 
     protected function setConnection()

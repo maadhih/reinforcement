@@ -19,7 +19,7 @@ class UserRoleController extends ResourceController
         $roleId = $this->validateRequest()['role_id'];
 
         $user = $this->getRepository()->getItem($id);
-        $role = $this->getRepository($id, 'roles')->getItem($roleId);
+        $role = $user->roles()->getRelated()->findOrFail($roleId);
 
         $this->getRepository()->attachRoleWithPermissions($user, $role);
         return response($role, 201);
@@ -28,7 +28,7 @@ class UserRoleController extends ResourceController
     public function detachRole($id, $roleId)
     {
         $user = $this->getRepository()->getItem($id);
-        $role = $this->getRepository($id, 'roles')->getItem($roleId);
+        $role = $user->roles()->getRelated()->findOrFail($roleId);
 
         $this->getRepository()->detachRoleWithPermissions($user, $role);
         return response('', 204);

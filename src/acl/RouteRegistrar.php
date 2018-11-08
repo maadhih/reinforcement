@@ -32,8 +32,8 @@ class RouteRegistrar
     public function all()
     {
         $this->router->group(['middleware' => ['web'], 'prefix' => 'api'], function ($router) {
-            $router->patch('users/{userId}/roles/attach', 'UserRoleController@attach')->name('users.roles.attach');
-            $router->patch('users/{userId}/roles/{roleId}/detach', 'UserRoleController@detach')->name('users.roles.detach');
+            $router->patch('users/{userId}/roles/attach', 'UserRoleController@attachRole')->name('users.roles.attach');
+            $router->delete('users/{userId}/roles/{roleId}/detach', 'UserRoleController@detachRole')->name('users.roles.detach');
 
             $router->resource('users', 'UserController');
             $router->resource('roles', 'RoleController');

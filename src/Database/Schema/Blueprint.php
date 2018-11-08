@@ -31,23 +31,10 @@ class Blueprint extends IlluminateBlueprint
      * @param  int  $precision
      * @return void
      */
-    public function timestamps($precision = 0)
+    public function timestampsWithDefault($precision = 0)
     {
         $this->timestamp('created_at', $precision)->default(DB::raw('CURRENT_TIMESTAMP'));
 
         $this->timestamp('updated_at', $precision)->default(DB::raw('CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP'));
-    }
-
-    /**
-     * Add nullable creation and update timestamps to the table.
-     *
-     * Alias for illuminate default timestamps().
-     *
-     * @param  int  $precision
-     * @return void
-     */
-    public function nullableTimestamps($precision = 0)
-    {
-        parent::timestamps($precision);
     }
 }

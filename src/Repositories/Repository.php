@@ -4,7 +4,6 @@ namespace Reinforcement\Repositories;
 
 use App\JsonApi\Errors\ErrorCollection;
 use App\Repositories\RepositoryException;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Response;
 use Reinforcement\Database\Eloquent\Model;
 use Reinforcement\Exceptions\BadRequestException;
@@ -42,7 +41,7 @@ abstract class Repository
         return $query->get($this->getFieldSets($parameters));
     }
 
-    protected function with($parameters = null, Builder $builder = null)
+    protected function with($parameters = null, $builder = null)
     {
         $with = !empty($parameters['includes'])  ? $parameters['includes'] : [];
 
@@ -136,10 +135,10 @@ abstract class Repository
      *
      * @return PagedDataInterface
      */
-    protected function paginateBuilder(Builder $builder, $parameters)
+    protected function paginateBuilder($builder, $parameters)
     {
         //paging
-        $builder = $builder->latest();
+        // $builder = $builder->latest();
         return $builder->paginate($this->getPageSize($parameters), $this->getFieldSets($parameters), 'page[number]', $this->getPageNumber($parameters));
     }
 

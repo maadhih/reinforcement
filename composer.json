@@ -28,7 +28,10 @@
     },
     "extra": {
         "laravel": {
-            "providers": ["Reinforcement\\ReinforcementServiceProvider"]
+            "providers": [
+                "Reinforcement\\ReinforcementServiceProvider",
+                "Reinforcement\\ValidationServiceProvider"
+            ]
         }
     }
 }

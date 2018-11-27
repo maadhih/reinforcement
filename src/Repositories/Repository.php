@@ -297,7 +297,9 @@ abstract class Repository
     public function setResource($resourceId)
     {
         $this->resourceId = $resourceId;
-        $this->model = $this->getModel()->newQuery()->findOrFail($resourceId);
+        if (empty($this->model) || !$this->model->exists || $this->model->id !== $resourceId) {
+            $this->model = $this->getModel()->newQuery()->findOrFail($resourceId);
+        }
         return $this;
     }
 

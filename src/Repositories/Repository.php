@@ -200,7 +200,7 @@ abstract class Repository
         }
 
         $relation = $this->getModel()->{$relation}();
-        $model = $relation->find($id);
+        $model = $relation->findOrFail($id);
         if (method_exists($relation, 'withPivot')) {
             $model->pivot->fill($data);
             if ($model->pivot->isDirty()) {

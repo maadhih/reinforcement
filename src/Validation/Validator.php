@@ -232,19 +232,24 @@ abstract class Validator
     public function getDbValues(array $input = [], $mappings = [])
     {
        $response = [];
-       foreach ($mappings as $inputKey => $dbValue) {
-        if (is_int($inputKey)) $inputKey = $dbValue;
+        foreach ($mappings as $inputKey => $dbValue) {
+            if (is_int($inputKey)) $inputKey = $dbValue;
 
             if (is_array($input) && array_get($input, $inputKey) !== null) {
                 $value = array_get($input, $inputKey);
                 if (is_scalar($value)) {
                      array_set($response, $dbValue, (is_bool($value) ? $value : trim($value)));
-                } elseif (is_array($value) && class_exists($mappings[$inputKey]['class'])) {
+                } elseif (is_array($dbValue)) {
+                    if (is_array($value) && is_array($dbValue) && class_exists($mappings[$inputKey]['class'])) {
                         $class = new $mappings[$inputKey]['class']($this->app);
                         foreach ($value as $v) {
                             $response[$mappings[$inputKey]['key']][] = $this->getDbValues($v, $class->mappings());
                         }
 
+                    } else {
+                        throw new \Exception("Incorrect mapping for '$inputKey' in ". static::class);
+
+                    }
                 } else {
                     array_set($response, $dbValue, $value);
                 }

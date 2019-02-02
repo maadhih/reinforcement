@@ -158,7 +158,13 @@ abstract class Repository
         $relation = $this->relation;
 
         if (!$relation) {
-            return $this->getModel()->create($data);
+            $model = $this->getModel()->create($data);
+
+            if (method_exists($this, 'postCreate')) {
+                return $this->postCreate($model);
+            }
+
+            return $model;
         }
         $relation = $this->getModel()->{$relation}();
 //getrelationtype
@@ -183,6 +189,12 @@ abstract class Repository
             }
         }
 
+        //relation
+
+        // if (method_exists($this, 'postCreate')) {
+        //     return $this->postCreate($model);
+        // }
+
         return $model;
     }
 
@@ -194,6 +206,10 @@ abstract class Repository
             $model->fill($data);
             if ($model->isDirty()) {
                 $model->save();
+            }
+
+            if (method_exists($this, 'postUpdate')) {
+                return $this->postUpdate($model);
             }
 
             return $model;

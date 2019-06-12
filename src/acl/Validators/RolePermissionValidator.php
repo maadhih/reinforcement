@@ -17,7 +17,7 @@ class RolePermissionValidator extends Validator {
     public function mappings()
     {
         return [
-            'permission_id'
+            'permission_id' => 'permission_slug'
         ];
     }
 

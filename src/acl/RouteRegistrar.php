@@ -39,7 +39,7 @@ class RouteRegistrar
             $router->resource('roles', 'RoleController');
             $router->resource('permissions', 'PermissionController');
 
-            $router->resource('users.roles', 'UserRoleController');
+            $router->resource('users.roles', 'UserRoleController', ['except' => ['store', 'destroy']]);
             $router->resource('users.permissions', 'UserPermissionController');
             $router->resource('roles.permissions', 'RolePermissionController');
         });
